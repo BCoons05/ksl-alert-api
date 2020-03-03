@@ -144,7 +144,8 @@ def add_user():
     return user_schema.jsonify(user)
 
 
-# POST new alert
+# POST new alert...
+
 @app.route("/alert", methods=["POST"])
 def add_alert():
     year_min = request.json["year_min"]
