@@ -27,7 +27,6 @@ class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(), nullable = False)
-    # Post works fine but wont return these values...
     results = db.relationship('Result', backref='user')
     alerts = db.relationship('Alert', backref='user')
 
@@ -204,6 +203,24 @@ def delete_alert(id):
     db.session.commit()
 
     return jsonify("Alert Deleted and stuff")
+
+# DELETE 
+@app.route("/result/<id>", methods=["DELETE"])
+def result_resultt(id):
+    result = Result.query.get(id)
+    db.session.delete(result)
+    db.session.commit()
+
+    return jsonify("Result Deleted and stuff")
+
+# DELETE 
+@app.route("/user/<id>", methods=["DELETE"])
+def delete_user(id):
+    user = User.query.get(id)
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify("User Deleted and stuff")
 
 
 if __name__ == "__main__":
