@@ -16,8 +16,8 @@ env.read_env()
 DATABASE_URL = env("DATABASE_URL")
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
+# app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 
 db = SQLAlchemy(app)
@@ -185,25 +185,25 @@ def add_result():
     return alert_schema.jsonify(result)
 
 # PUT/PATCH by ID -- Not sure what we would patch at the moment, I can update this if I find a use
-# @app.route("/car/<id>", methods=["PATCH"])
-# def update_car(id):
-#     car = Car.query.get(id)
+# @app.route("/alert/<id>", methods=["PATCH"])
+# def delete_alert(id):
+#     alert = Alert.query.get(id)
 
-#     new_car = request.json["car"]
+#     new_alert = request.json["alert"]
 
 #     todo.done = new_car
 
 #     db.session.commit()
-#     return car.jsonify(car)
+#     return car.jsonify(alert)
 
-# DELETE -- Again I am not sure why we would delete a car... I can update this if I find a use
-# @app.route("/todo/<id>", methods=["DELETE"])
-# def delete_todo(id):
-#     todo = Todo.query.get(id)
-#     db.session.delete(todo)
-#     db.session.commit()
+# DELETE 
+@app.route("/alert/<id>", methods=["DELETE"])
+def delete_alert(id):
+    alert = Alert.query.get(id)
+    db.session.delete(alert)
+    db.session.commit()
 
-#     return jsonify("Todo Deleted and stuff")
+    return jsonify("Alert Deleted and stuff")
 
 
 if __name__ == "__main__":
