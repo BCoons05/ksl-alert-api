@@ -28,8 +28,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(), nullable = False)
     # Post works fine but wont return these values...
-    # results = db.relationship('Result', backref='user')
-    # alerts = db.relationship('Alert', backref='user')
+    results = db.relationship('Result', backref='user')
+    alerts = db.relationship('Alert', backref='user')
 
     def __init__(self, name):
         self.name = name
@@ -45,9 +45,9 @@ class Alert(db.Model):
     price_max = db.Column(db.Integer())
     miles_min = db.Column(db.Integer())
     miles_max = db.Column(db.Integer())
-    user_id = db.Column(db.Integer())
+    # user_id = db.Column(db.Integer())
     # only partially working
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __init__(self, year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, user_id):
         self.year_min = year_min
@@ -69,9 +69,9 @@ class Result(db.Model):
     miles = db.Column(db.Integer())
     price = db.Column(db.Integer())
     link = db.Column(db.String)
-    user_id = db.Column(db.Integer)
+    # user_id = db.Column(db.Integer)
     # not working right
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __init__(self, year, make, model, miles, price, link, user_id):
         self.year = year
@@ -108,7 +108,7 @@ results_schema = ResultSchema(many=True)
 # GET
 @app.route("/users", methods=["GET"])
 def get_users():
-    all_users = User.query.join(Result).all()
+    all_users = User.query.all()
     userResult = users_schema.dump(all_users)
 
     return jsonify(userResult)
@@ -144,8 +144,7 @@ def add_user():
     return user_schema.jsonify(user)
 
 
-# POST new alert...
-
+# POST new alert
 @app.route("/alert", methods=["POST"])
 def add_alert():
     year_min = request.json["year_min"]
