@@ -7,7 +7,7 @@ from flask_heroku import Heroku
 from environs import Env
 import os
 
-# s/search/Toyota-Sienna-1990-2017-50-250000-50-200000
+# https://ksl-alerts-user-api.herokuapp.coms/search/Toyota-Sienna-1990-2017-50-250000-50-200000
 
 app = Flask(__name__)
 CORS(app)
