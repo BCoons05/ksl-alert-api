@@ -7,6 +7,7 @@ from flask_heroku import Heroku
 from environs import Env
 import os
 
+# s/search/Toyota-Sienna-1990-2017-50-250000-50-200000
 
 app = Flask(__name__)
 CORS(app)
@@ -27,8 +28,8 @@ ma = Marshmallow(app)
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(), nullable = False)
-    email = db.Column(db.String(), nullable = False)
+    name = db.Column(db.String, nullable = False)
+    email = db.Column(db.String, nullable = False)
     results = db.relationship('Result')
     alerts = db.relationship('Alert')
 
@@ -130,7 +131,7 @@ averages_schema = PriceAverageSchema(many=True)
 # GET
 @app.route("/user/<email>", methods=["GET"])
 def get_user(email):
-    found_user = User.query.filter(User.email == email)
+    found_user = User.query.filter(User.email.like(email))
     # all_users = db.session.query(Alert).join(User).filter(User.id == Alert.user_id).all()
     userResult = user_schema.dump(found_user)
 
@@ -145,11 +146,19 @@ def get_users():
     all_users = User.query.all()
     usersResult = users_schema.dump(all_users)
 
-    return jsonify(all_users)
+    return jsonify(usersResult)
+
+#Get all results
+@app.route("/alerts", methods=["GET"])
+def get_alerts():
+    all_alerts = Alert.query.all()
+    alertResult = alerts_schema.dump(all_alerts)
+
+    return jsonify(alertResult)
 
 #get alerts by user id
 @app.route("/alerts/<id>", methods=["GET"])
-def get_alerts(id):
+def get_alerts_by_id(id):
     all_alerts = Alert.query.filter(Alert.user_id == id).all()
     alertResult = alerts_schema.dump(all_alerts)
 
