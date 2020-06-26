@@ -172,9 +172,9 @@ def get_results_by_id(id):
     return jsonify(resultResult)
 
 #Search
-@app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+@app.route("/results/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_results = db.session.query()\
+    search_results = Result.query\
         .filter(Result.make.like(make))\
         .filter(Result.model.like(model))\
         .filter(Result.year >= year_min)\
@@ -217,7 +217,7 @@ def add_user():
     name = request.json["name"]
     email = request.json["email"]
 
-    new_user = User(name)
+    new_user = User(name, email)
 
     db.session.add(new_user)
     db.session.commit()
