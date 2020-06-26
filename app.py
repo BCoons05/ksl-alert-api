@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func
+from flask_sqlalchemy import SQLAlchemy, func
+# from sqlalchemy.sql import func
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
@@ -106,7 +106,7 @@ class AlertSchema(ma.Schema):
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id")
+        fields = ("id", "year", "make", "model", "price", "miles", "link", "user_id")
 
 #In case I want to save the averages
 class PriceAverageSchema(ma.Schema):
