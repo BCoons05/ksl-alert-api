@@ -18,8 +18,8 @@ env.read_env()
 DATABASE_URL = env("DATABASE_URL")
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
+# app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 
 db = SQLAlchemy(app)
@@ -190,7 +190,7 @@ def get_average_price(make, model, year_min, year_max):
         .filter(Result.year >= year_min)\
         .filter(Result.year <= year_max).all()
     
-    return jsonify(average_price)
+    return jsonify({"averagePrice": average_price})
 
 
 #Get average miles 
@@ -203,7 +203,7 @@ def get_average_miles(make, model, year_min, year_max):
         Result.year <= year_max
         ).all()
 
-    return jsonify(average_miles)
+    return jsonify({"averageMiles": average_miles})
 
 # POST new user
 @app.route("/user", methods=["POST"])
