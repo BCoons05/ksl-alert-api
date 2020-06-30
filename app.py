@@ -18,8 +18,8 @@ env.read_env()
 DATABASE_URL = env("DATABASE_URL")
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
+# app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 
 db = SQLAlchemy(app)
@@ -89,14 +89,6 @@ class Result(db.Model):
         self.link = link
         self.user_id = user_id
 
-class Avg_price(db.Model):
-    __tablename__ = "average_price"
-    id = db.Column(db.Integer, primary_key = True)
-    average_price = db.Column(db.Integer)
-
-    def __init__(self, average_price):
-        self.average_price = average_price
-
 class UserSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "email")
@@ -109,11 +101,6 @@ class ResultSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "price", "miles", "link", "user_id")
 
-#In case I want to save the averages
-class PriceAverageSchema(ma.Schema):
-    class Meta:
-        fields = ("id", "average_price")
-
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
@@ -123,22 +110,20 @@ alerts_schema = AlertSchema(many=True)
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
 
-average_schema = PriceAverageSchema()
-averages_schema = PriceAverageSchema(many=True)
-
 # CRUD
 
 # GET
-@app.route("/user/<email>", methods=["GET"])
-def get_user(email):
-    found_user = User.query.filter(User.email.like(email))
+# GET user by email TODO not working but need to change this to tokens
+@app.route("/user/<userEmail>", methods=["GET"])
+def get_user(userEmail):
+    found_user = User.query.filter(User.email.like(userEmail)).all()
     # all_users = db.session.query(Alert).join(User).filter(User.id == Alert.user_id).all()
     userResult = user_schema.dump(found_user)
 
     if userResult:
         return jsonify(userResult)
     else:
-        return jsonify("User not found")
+        return jsonify(userResult)
 
 #Get all users
 @app.route("/users", methods=["GET"])
@@ -148,7 +133,7 @@ def get_users():
 
     return jsonify(usersResult)
 
-#Get all results
+#Get all alerts
 @app.route("/alerts", methods=["GET"])
 def get_alerts():
     all_alerts = Alert.query.all()
@@ -181,7 +166,7 @@ def get_results_by_id(id):
     return jsonify(resultResult)
 
 #Search
-@app.route("/results/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+@app.route("/results/search/<make>-<model>-yearRange=<year_min>-<year_max>-milesRange=<price_min>-<price_max>-priceRange=<miles_min>-<miles_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_results = Result.query\
         .filter(Result.make.like(make))\
