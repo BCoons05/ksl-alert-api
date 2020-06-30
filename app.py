@@ -17,8 +17,8 @@ env.read_env()
 DATABASE_URL = env("DATABASE_URL")
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
+# app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 
 db = SQLAlchemy(app)
@@ -188,7 +188,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
     return jsonify(searchResult)
 
 #Get average price 
-@app.route("/results/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
+@app.route("/results/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     average_price = db.session.query(func.avg(Result.price).label('average'))\
         .filter(Result.make.like(make))\
@@ -196,11 +196,13 @@ def get_average_price(make, model, year_min, year_max):
         .filter(Result.year >= year_min)\
         .filter(Result.year <= year_max).all()
     
-    return str(average_price[0][0])
+    price_str = str(average_price[0][0])
+
+    return price_str[0 : price_str.index('.')]
 
 
 #Get average miles 
-@app.route("/results/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
+@app.route("/results/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
     average_miles = db.session.query(func.avg(Result.miles).label('average')).filter(
         Result.make.like(make)).filter(
@@ -209,7 +211,10 @@ def get_average_miles(make, model, year_min, year_max):
         Result.year <= year_max
         ).all()
 
-    return str(average_miles[0][0])
+    miles_str = str(average_miles[0][0])
+
+    return miles_str[0 : miles_str.index('.')]
+
 
 # POST new user
 @app.route("/user", methods=["POST"])
