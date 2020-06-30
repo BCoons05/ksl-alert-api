@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy.sql import func
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
 from environs import Env
 import os
 
-# https://ksl-alerts-user-api.herokuapp.coms/search/Toyota-Sienna-1990-2017-50-250000-50-200000
 
 app = Flask(__name__)
 CORS(app)
@@ -28,8 +27,8 @@ ma = Marshmallow(app)
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String, nullable = False)
-    email = db.Column(db.String, nullable = False)
+    name = db.Column(db.String(), nullable = False)
+    email = db.Column(db.String(), nullable = False)
     results = db.relationship('Result')
     alerts = db.relationship('Alert')
 
@@ -89,6 +88,14 @@ class Result(db.Model):
         self.link = link
         self.user_id = user_id
 
+class Avg_price(db.Model):
+    __tablename__ = "average_price"
+    id = db.Column(db.Integer, primary_key = True)
+    average_price = db.Column(db.Integer)
+
+    def __init__(self, average_price):
+        self.average_price = average_price
+
 class UserSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "email")
@@ -99,7 +106,12 @@ class AlertSchema(ma.Schema):
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "price", "miles", "link", "user_id")
+        fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id")
+
+#In case I want to save the averages
+class PriceAverageSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "average_price")
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -110,20 +122,22 @@ alerts_schema = AlertSchema(many=True)
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
 
+average_schema = PriceAverageSchema()
+averages_schema = PriceAverageSchema(many=True)
+
 # CRUD
 
 # GET
-# GET user by email TODO not working but need to change this to tokens
-@app.route("/user/<userEmail>", methods=["GET"])
-def get_user(userEmail):
-    found_user = User.query.filter(User.email.like(userEmail)).all()
+@app.route("/user/<email>", methods=["GET"])
+def get_user(email):
+    found_user = User.query.filter(User.email == email)
     # all_users = db.session.query(Alert).join(User).filter(User.id == Alert.user_id).all()
     userResult = user_schema.dump(found_user)
 
     if userResult:
         return jsonify(userResult)
     else:
-        return jsonify(userResult)
+        return jsonify("User not found")
 
 #Get all users
 @app.route("/users", methods=["GET"])
@@ -131,19 +145,11 @@ def get_users():
     all_users = User.query.all()
     usersResult = users_schema.dump(all_users)
 
-    return jsonify(usersResult)
-
-#Get all alerts
-@app.route("/alerts", methods=["GET"])
-def get_alerts():
-    all_alerts = Alert.query.all()
-    alertResult = alerts_schema.dump(all_alerts)
-
-    return jsonify(alertResult)
+    return jsonify(all_users)
 
 #get alerts by user id
 @app.route("/alerts/<id>", methods=["GET"])
-def get_alerts_by_id(id):
+def get_alerts(id):
     all_alerts = Alert.query.filter(Alert.user_id == id).all()
     alertResult = alerts_schema.dump(all_alerts)
 
@@ -166,9 +172,9 @@ def get_results_by_id(id):
     return jsonify(resultResult)
 
 #Search
-@app.route("/results/search/<make>-<model>-yearRange=<year_min>-<year_max>-milesRange=<price_min>-<price_max>-priceRange=<miles_min>-<miles_max>", methods=["GET"])
+@app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_results = Result.query\
+    search_results = db.session.query()\
         .filter(Result.make.like(make))\
         .filter(Result.model.like(model))\
         .filter(Result.year >= year_min)\
@@ -190,7 +196,7 @@ def get_average_price(make, model, year_min, year_max):
         .filter(Result.year >= year_min)\
         .filter(Result.year <= year_max).all()
     
-    return jsonify({"averagePrice": average_price[0][0]})
+    return jsonify(average_price[0][0])
 
 
 #Get average miles 
@@ -203,7 +209,7 @@ def get_average_miles(make, model, year_min, year_max):
         Result.year <= year_max
         ).all()
 
-    return jsonify({"averageMiles": average_miles[0][0]})
+    return jsonify(average_miles[0][0])
 
 # POST new user
 @app.route("/user", methods=["POST"])
@@ -211,7 +217,7 @@ def add_user():
     name = request.json["name"]
     email = request.json["email"]
 
-    new_user = User(name, email)
+    new_user = User(name)
 
     db.session.add(new_user)
     db.session.commit()
