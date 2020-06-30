@@ -190,7 +190,7 @@ def get_average_price(make, model, year_min, year_max):
         .filter(Result.year >= year_min)\
         .filter(Result.year <= year_max).all()
     
-    return jsonify({"averagePrice": average_price})
+    return jsonify({"averagePrice": average_price[0][0]})
 
 
 #Get average miles 
@@ -203,7 +203,7 @@ def get_average_miles(make, model, year_min, year_max):
         Result.year <= year_max
         ).all()
 
-    return jsonify({"averageMiles": average_miles})
+    return jsonify({"averageMiles": average_miles[0][0]})
 
 # POST new user
 @app.route("/user", methods=["POST"])
