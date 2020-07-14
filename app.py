@@ -198,7 +198,7 @@ def get_results_by_id(id):
     return jsonify(resultResult)
 
 #Search Results
-@app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+@app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_results = db.session.query()\
         .filter(Result.make.like(make))\
