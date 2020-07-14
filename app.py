@@ -88,6 +88,25 @@ class Result(db.Model):
         self.link = link
         self.user_id = user_id
 
+class Car(db.Model):
+    __tablename__ = "cars"
+    id = db.Column(db.Integer, primary_key = True)
+    year = db.Column(db.Integer)
+    make = db.Column(db.String)
+    model = db.Column(db.String)
+    miles = db.Column(db.Integer)
+    price = db.Column(db.Integer)
+    link = db.Column(db.String)
+
+
+    def __init__(self, year, make, model, miles, price, link):
+        self.year = year
+        self.make = make
+        self.model = model
+        self.miles = miles
+        self.price = price
+        self.link = link
+
 class Avg_price(db.Model):
     __tablename__ = "average_price"
     id = db.Column(db.Integer, primary_key = True)
@@ -108,6 +127,10 @@ class ResultSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id")
 
+class CarSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "year", "make", "model", "miles", "price", "link")
+
 #In case I want to save the averages
 class PriceAverageSchema(ma.Schema):
     class Meta:
@@ -121,6 +144,9 @@ alerts_schema = AlertSchema(many=True)
 
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
+
+car_schema = CarSchema()
+cars_schema = CarSchema(many=True)
 
 average_schema = PriceAverageSchema()
 averages_schema = PriceAverageSchema(many=True)
@@ -171,7 +197,7 @@ def get_results_by_id(id):
 
     return jsonify(resultResult)
 
-#Search
+#Search Results
 @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_results = db.session.query()\
@@ -186,6 +212,22 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
     searchResult = results_schema.dump(search_results)
 
     return jsonify(searchResult)
+
+#Search All Cars
+@app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
+    search_cars = db.session.query()\
+        .filter(Car.make.like(make))\
+        .filter(Car.model.like(model))\
+        .filter(Car.year >= year_min)\
+        .filter(Car.year <= year_max)\
+        .filter(Car.miles >= miles_min)\
+        .filter(Car.miles <= miles_max)\
+        .filter(Car.price >= price_min)\
+        .filter(Car.price <= price_max).all()
+    searchCars = cars_schema.dump(search_cars)
+
+    return jsonify(searchCars)
 
 #Get average price 
 @app.route("/results/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
@@ -272,6 +314,24 @@ def add_result():
     result = Result.query.get(new_result.user_id)
     return alert_schema.jsonify(result)
 
+# POST new result
+@app.route("/car", methods=["POST"])
+def add_car():
+    year = request.json["year"]
+    make = request.json["make"]
+    model = request.json["model"]
+    price = request.json["price"]
+    miles = request.json["miles"]
+    link = request.json["link"]
+
+    new_car = Car(year, make, model, price, miles, link)
+
+    db.session.add(new_car)
+    db.session.commit()
+
+    car = Car.query.get(new_car.model)
+    return alert_schema.jsonify(car)
+
 # PUT/PATCH by ID -- Not sure what we would patch at the moment, I can update this if I find a use
 # @app.route("/alert/<id>", methods=["PATCH"])
 # def delete_alert(id):
@@ -295,12 +355,21 @@ def delete_alert(id):
 
 # DELETE result
 @app.route("/result/<id>", methods=["DELETE"])
-def result_resultt(id):
+def delete_result(id):
     result = Result.query.get(id)
     db.session.delete(result)
     db.session.commit()
 
     return jsonify("Result Deleted and stuff")
+
+# DELETE car
+@app.route("/car/<id>", methods=["DELETE"])
+def delete_resultt(id):
+    car = Car.query.get(id)
+    db.session.delete(car)
+    db.session.commit()
+
+    return jsonify("Car Deleted and stuff")
 
 # DELETE user
 @app.route("/user/<id>", methods=["DELETE"])
