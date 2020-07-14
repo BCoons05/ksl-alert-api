@@ -301,12 +301,12 @@ def add_result():
     year = request.json["year"]
     make = request.json["make"]
     model = request.json["model"]
-    price = request.json["price"]
     miles = request.json["miles"]
+    price = request.json["price"]
     link = request.json["link"]
     user_id = request.json["user_id"]
 
-    new_result = Result(year, make, model, price, miles, link, user_id)
+    new_result = Result(year, make, model, miles, price, link, user_id)
 
     db.session.add(new_result)
     db.session.commit()
@@ -314,17 +314,17 @@ def add_result():
     result = Result.query.get(new_result.user_id)
     return alert_schema.jsonify(result)
 
-# POST new result
+# POST new car
 @app.route("/car", methods=["POST"])
 def add_car():
     year = request.json["year"]
     make = request.json["make"]
     model = request.json["model"]
-    price = request.json["price"]
     miles = request.json["miles"]
+    price = request.json["price"]
     link = request.json["link"]
 
-    new_car = Car(year, make, model, price, miles, link)
+    new_car = Car(year, make, model, miles, price, link)
 
     db.session.add(new_car)
     db.session.commit()
