@@ -329,8 +329,8 @@ def add_car():
     db.session.add(new_car)
     db.session.commit()
 
-    car = Car.query.get(new_car.model)
-    return alert_schema.jsonify(car)
+    # car = Car.query.get(new_car.model)
+    return alert_schema.jsonify(new_car)
 
 # PUT/PATCH by ID -- Not sure what we would patch at the moment, I can update this if I find a use
 # @app.route("/alert/<id>", methods=["PATCH"])
