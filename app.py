@@ -189,6 +189,14 @@ def get_results():
 
     return jsonify(resultResult)
 
+#Get all cars
+@app.route("/cars", methods=["GET"])
+def get_cars():
+    all_cars = Car.query.all()
+    carResult = cars_schema.dump(all_cars)
+
+    return jsonify(carResult)
+
 #Get results by user id
 @app.route("/results/<id>", methods=["GET"])
 def get_results_by_id(id):
