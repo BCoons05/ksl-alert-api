@@ -36,6 +36,7 @@ class User(db.Model):
         self.name = name
         self.email = email
 
+# A user's alert
 class Alert(db.Model):
     __tablename__ = "alerts"
     id = db.Column(db.Integer, primary_key = True)
@@ -48,8 +49,6 @@ class Alert(db.Model):
     miles_min = db.Column(db.Integer)
     miles_max = db.Column(db.Integer)
     deviation = db.Column(db.Integer)
-    # user_id = db.Column(db.Integer())
-    # only partially working
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="alerts")
 
@@ -65,6 +64,7 @@ class Alert(db.Model):
         self.deviation = deviation
         self.user_id = user_id
 
+# This stores any cars that match an alert. related to user and alert.
 class Result(db.Model):
     __tablename__ = "results"
     id = db.Column(db.Integer, primary_key = True)
@@ -74,10 +74,10 @@ class Result(db.Model):
     miles = db.Column(db.Integer)
     price = db.Column(db.Integer)
     link = db.Column(db.String)
-    # user_id = db.Column(db.Integer)
-    # not working right
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
     user = db.relationship("User", back_populates="results")
+    alert = db.relationship("Alert", back_populates="results")
 
     def __init__(self, year, make, model, miles, price, link, user_id):
         self.year = year
@@ -88,6 +88,7 @@ class Result(db.Model):
         self.link = link
         self.user_id = user_id
 
+# This is used to store all cars from KSL
 class Car(db.Model):
     __tablename__ = "cars"
     id = db.Column(db.Integer, primary_key = True)
@@ -107,14 +108,6 @@ class Car(db.Model):
         self.price = price
         self.link = link
 
-class Avg_price(db.Model):
-    __tablename__ = "average_price"
-    id = db.Column(db.Integer, primary_key = True)
-    average_price = db.Column(db.Integer)
-
-    def __init__(self, average_price):
-        self.average_price = average_price
-
 class UserSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "email")
@@ -131,11 +124,6 @@ class CarSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "miles", "price", "link")
 
-#In case I want to save the averages
-class PriceAverageSchema(ma.Schema):
-    class Meta:
-        fields = ("id", "average_price")
-
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
@@ -147,9 +135,6 @@ results_schema = ResultSchema(many=True)
 
 car_schema = CarSchema()
 cars_schema = CarSchema(many=True)
-
-average_schema = PriceAverageSchema()
-averages_schema = PriceAverageSchema(many=True)
 
 # CRUD
 
@@ -198,17 +183,25 @@ def get_cars():
     return jsonify(carResult)
 
 #Get results by user id
-@app.route("/results/<id>", methods=["GET"])
-def get_results_by_id(id):
+@app.route("/user_results/<id>", methods=["GET"])
+def get_results_by_user_id(id):
     all_results = Result.query.filter(Result.user_id == id).all()
     resultResult = results_schema.dump(all_results)
 
     return jsonify(resultResult)
 
-#Search Results
+#Get results by user id
+@app.route("/alert_results/<id>", methods=["GET"])
+def get_results_by_alert_id(id):
+    all_results = Result.query.filter(Result.alert_id == id).all()
+    resultResult = results_schema.dump(all_results)
+
+    return jsonify(resultResult)
+
+#Search all alert Results
 @app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_results = db.session.query()\
+    search_results = Result.query()\
         .filter(Result.make.like(make))\
         .filter(Result.model.like(model))\
         .filter(Result.year >= year_min)\
@@ -224,7 +217,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 #Search All Cars
 @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = db.session.query()\
+    search_cars = Car.query()\
         .filter(Car.make.like(make))\
         .filter(Car.model.like(model))\
         .filter(Car.year >= year_min)\
@@ -237,14 +230,14 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
 
     return jsonify(searchCars)
 
-#Get average price 
-@app.route("/results/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
+#Get average price
+@app.route("/cars/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
-    average_price = db.session.query(func.avg(Result.price).label('average'))\
-        .filter(Result.make.like(make))\
-        .filter(Result.model.like(model))\
-        .filter(Result.year >= year_min)\
-        .filter(Result.year <= year_max).all()
+    average_price = db.session.query(func.avg(Car.price).label('average'))\
+        .filter(Car.make.like(make))\
+        .filter(Car.model.like(model))\
+        .filter(Car.year >= year_min)\
+        .filter(Car.year <= year_max).all()
     
     price_str = str(average_price[0][0])
 
@@ -252,14 +245,13 @@ def get_average_price(make, model, year_min, year_max):
 
 
 #Get average miles 
-@app.route("/results/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
+@app.route("/cars/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
-    average_miles = db.session.query(func.avg(Result.miles).label('average')).filter(
-        Result.make.like(make)).filter(
-        Result.model.like(model)).filter(
-        Result.year >= year_min).filter(
-        Result.year <= year_max
-        ).all()
+    average_miles = db.session.query(func.avg(Car.miles).label('average')).filter(
+        Car.make.like(make)).filter(
+        Car.model.like(model)).filter(
+        Car.year >= year_min).filter(
+        Car.year <= year_max).all()
 
     miles_str = str(average_miles[0][0])
 
