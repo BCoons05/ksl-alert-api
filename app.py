@@ -202,7 +202,7 @@ def get_results_by_alert_id(id):
 #Search all alert Results
 @app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_results = Result.query()\
+    search_results = db.session.query()\
         .filter(Result.make.like(make))\
         .filter(Result.model.like(model))\
         .filter(Result.year >= year_min)\
@@ -218,7 +218,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 #Search All Cars
 @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = Car.query()\
+    search_cars = db.session.query()\
         .filter(Car.make.like(make))\
         .filter(Car.model.like(model))\
         .filter(Car.year >= year_min)\
