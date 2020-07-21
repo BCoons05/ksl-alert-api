@@ -5,7 +5,7 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
 from environs import Env
-from elasticsearch import Elasticsearch
+# from elasticsearch import Elasticsearch
 import os
 
 
