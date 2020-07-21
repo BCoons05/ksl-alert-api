@@ -202,15 +202,16 @@ def get_results_by_alert_id(id):
 #Search all alert Results
 @app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_results = db.session.query()\
-        .filter(Result.make.like(make))\
-        .filter(Result.model.like(model))\
-        .filter(Result.year >= year_min)\
-        .filter(Result.year <= year_max)\
-        .filter(Result.miles >= miles_min)\
-        .filter(Result.miles <= miles_max)\
-        .filter(Result.price >= price_min)\
-        .filter(Result.price <= price_max).all()
+    search_results = db.session.execute('SELECT * FROM results WHERE Result.make.like(make) AND Result.model.like(model) AND Result.year >= year_min AND Result.year <= year_max AND Result.miles >= miles_min AND Result.miles <= miles_max AND Result.price >= price_min AND Result.price <= price_max')
+    # search_results = db.session.query()\
+    #     .filter(Result.make.like(make))\
+    #     .filter(Result.model.like(model))\
+    #     .filter(Result.year >= year_min)\
+    #     .filter(Result.year <= year_max)\
+    #     .filter(Result.miles >= miles_min)\
+    #     .filter(Result.miles <= miles_max)\
+    #     .filter(Result.price >= price_min)\
+    #     .filter(Result.price <= price_max).all()
     searchResult = results_schema.dump(search_results)
 
     return jsonify(searchResult)
