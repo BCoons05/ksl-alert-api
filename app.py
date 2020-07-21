@@ -220,7 +220,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 #Search All Cars
 @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = Car.query()\
+    search_cars = db.session.query()\
         .filter(Car.make.like(make),\
         Car.model.like(model),\
         Car.year >= year_min,\
