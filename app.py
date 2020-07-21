@@ -51,6 +51,7 @@ class Alert(db.Model):
     deviation = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="alerts")
+    results = db.relationship('Result')
 
     def __init__(self, year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, user_id):
         self.year_min = year_min
