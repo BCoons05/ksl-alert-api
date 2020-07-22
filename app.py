@@ -40,6 +40,7 @@ class User(db.Model):
 
 
 # A user's alert
+# TODO Do I need price and miles min and max? We are going to use the averages or ML for price and miles ...
 class Alert(db.Model):
     __tablename__ = "alerts"
     id = db.Column(db.Integer, primary_key = True)
@@ -123,7 +124,7 @@ class UserSchema(ma.Schema):
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "price_min", "price_max", "miles_min", "miles_max", "user_id")
+        fields = ("id", "year_min", "year_max", "make", "model", "price_min", "price_max", "miles_min", "miles_max", "deviation", "user_id")
 
 
 class ResultSchema(ma.Schema):
