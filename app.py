@@ -286,7 +286,7 @@ def get_average_miles(make, model, year_min, year_max):
 
 
 #Search Alerts
-# When we scrape KSL, before we post a car, we will check for a matching alert here. If there is a match then create an alert and send a message
+# When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
 @app.route("/alerts/<make>-<model>-<year>-<miles>-<price>", methods=["GET"])
 def get_matching_alerts(make, model, year, miles, price):
     search_alerts = db.session.query()\
