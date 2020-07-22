@@ -25,6 +25,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key = True)
@@ -36,6 +37,7 @@ class User(db.Model):
     def __init__(self, name, email):
         self.name = name
         self.email = email
+
 
 # A user's alert
 class Alert(db.Model):
@@ -66,6 +68,7 @@ class Alert(db.Model):
         self.deviation = deviation
         self.user_id = user_id
 
+
 # This stores any cars that match an alert. related to user and alert.
 class Result(db.Model):
     __tablename__ = "results"
@@ -90,6 +93,7 @@ class Result(db.Model):
         self.link = link
         self.user_id = user_id
 
+
 # This is used to store all cars from KSL
 class Car(db.Model):
     __tablename__ = "cars"
@@ -110,21 +114,26 @@ class Car(db.Model):
         self.price = price
         self.link = link
 
+
 class UserSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "email")
+
 
 class AlertSchema(ma.Schema):
     class Meta:
         fields = ("id", "year_min", "year_max", "make", "model", "price_min", "price_max", "miles_min", "miles_max", "user_id")
 
+
 class ResultSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id")
 
+
 class CarSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "miles", "price", "link")
+
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -138,9 +147,10 @@ results_schema = ResultSchema(many=True)
 car_schema = CarSchema()
 cars_schema = CarSchema(many=True)
 
+
 # CRUD
 
-# GET
+# GET user by email. Will change this to tokens
 @app.route("/user/<email>", methods=["GET"])
 def get_user(email):
     found_user = User.query.filter(User.email == email)
@@ -152,6 +162,7 @@ def get_user(email):
     else:
         return jsonify("User not found")
 
+
 #Get all users
 @app.route("/users", methods=["GET"])
 def get_users():
@@ -159,6 +170,7 @@ def get_users():
     usersResult = users_schema.dump(all_users)
 
     return jsonify(all_users)
+
 
 #get alerts by user id
 @app.route("/alerts/<id>", methods=["GET"])
@@ -168,7 +180,8 @@ def get_alerts(id):
 
     return jsonify(alertResult)
 
-#Get all results
+
+#Get all results for all users
 @app.route("/results", methods=["GET"])
 def get_results():
     all_results = Result.query.all()
@@ -176,13 +189,15 @@ def get_results():
 
     return jsonify(resultResult)
 
-#Get all cars
+
+#Get all cars 
 @app.route("/cars", methods=["GET"])
 def get_cars():
     all_cars = Car.query.all()
     carResult = cars_schema.dump(all_cars)
 
     return jsonify(carResult)
+
 
 #Get results by user id
 @app.route("/user_results/<id>", methods=["GET"])
@@ -192,7 +207,8 @@ def get_results_by_user_id(id):
 
     return jsonify(resultResult)
 
-#Get results by user id
+
+#Get results by alert id
 @app.route("/alert_results/<id>", methods=["GET"])
 def get_results_by_alert_id(id):
     all_results = Result.query.filter(Result.alert_id == id).all()
@@ -200,7 +216,9 @@ def get_results_by_alert_id(id):
 
     return jsonify(resultResult)
 
+
 #Search all alert Results
+# This will get all results that match a search query. May not use it. 
 @app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     # search_results = db.session.execute(text('SELECT * FROM results WHERE Result.make LIKE :make AND Result.model LIKE :model AND Result.year >= :year_min AND Result.year <= :year_max AND Result.miles >= :miles_min AND Result.miles <= :miles_max AND Result.price >= :price_min AND Result.price <= :price_max'))
@@ -217,7 +235,9 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 
     return jsonify(searchResult)
 
+
 #Search All Cars
+# Searches all cars in the db using given query. Need this for the Chrome extension
 @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_cars = db.session.query()\
@@ -234,7 +254,9 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
 
     return jsonify(searchCars)
 
+
 #Get average price
+# Works but returns a string
 @app.route("/cars/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     average_price = db.session.query(func.avg(Car.price).label('average'))\
@@ -249,6 +271,7 @@ def get_average_price(make, model, year_min, year_max):
 
 
 #Get average miles 
+# Works but returns a string
 @app.route("/cars/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
     average_miles = db.session.query(func.avg(Car.miles).label('average')).filter(
@@ -260,6 +283,25 @@ def get_average_miles(make, model, year_min, year_max):
     miles_str = str(average_miles[0][0])
 
     return miles_str[0 : miles_str.index('.')]
+
+
+#Search Alerts
+# When we scrape KSL, before we post a car, we will check for a matching alert here. If there is a match then create an alert and send a message
+@app.route("/alerts/<make>-<model>-<year>-<miles>-<price>", methods=["GET"])
+def get_matching_alerts(make, model, year, miles, price):
+    search_alerts = db.session.query()\
+        .filter(Alert.make.like(make),\
+        Alert.model.like(model),\
+        Alert.year_min <= year,\
+        Alert.year_max >= year,\
+        Alert.miles_min <= miles,\
+        Alert.miles_max >= miles,\
+        Alert.price_min <= price,\
+        Alert.price_max >= price
+        ).all()
+    searchAlerts = cars_schema.dump(search_alerts)
+
+    return jsonify(searchAlerts)
 
 
 # POST new user
@@ -299,7 +341,9 @@ def add_alert():
     alert = Alert.query.get(new_alert.user_id)
     return alert_schema.jsonify(alert)
 
+
 # POST new result
+# If car matches an alert, then we will post that car as a result with the matching alert id
 @app.route("/result", methods=["POST"])
 def add_result():
     year = request.json["year"]
@@ -318,7 +362,9 @@ def add_result():
     result = Result.query.get(new_result.user_id)
     return alert_schema.jsonify(result)
 
+
 # POST new car
+# to post all cars scraped from ksl
 @app.route("/car", methods=["POST"])
 def add_car():
     year = request.json["year"]
@@ -336,7 +382,8 @@ def add_car():
     # car = Car.query.get(new_car.model)
     return alert_schema.jsonify(new_car)
 
-# PUT/PATCH by ID -- Not sure what we would patch at the moment, I can update this if I find a use
+
+# PUT/PATCH by ID -- TODO this will be to update an alert. Will need an update for user info too
 # @app.route("/alert/<id>", methods=["PATCH"])
 # def delete_alert(id):
 #     alert = Alert.query.get(id)
@@ -348,6 +395,7 @@ def add_car():
 #     db.session.commit()
 #     return car.jsonify(alert)
 
+
 # DELETE alert
 @app.route("/alert/<id>", methods=["DELETE"])
 def delete_alert(id):
@@ -356,6 +404,7 @@ def delete_alert(id):
     db.session.commit()
 
     return jsonify("Alert Deleted and stuff")
+
 
 # DELETE result
 @app.route("/result/<id>", methods=["DELETE"])
@@ -366,6 +415,7 @@ def delete_result(id):
 
     return jsonify("Result Deleted and stuff")
 
+
 # DELETE car
 @app.route("/car/<id>", methods=["DELETE"])
 def delete_resultt(id):
@@ -375,6 +425,7 @@ def delete_resultt(id):
 
     return jsonify("Car Deleted and stuff")
 
+
 # DELETE user
 @app.route("/user/<id>", methods=["DELETE"])
 def delete_user(id):
@@ -383,14 +434,6 @@ def delete_user(id):
     db.session.commit()
 
     return jsonify("User Deleted and stuff")
-
-# @app.route("/user/<id>", methods=["GET"])
-# def find_user(name):
-#     # user = User.query.get(name)
-#     all_users = User.query.all()
-#     userResult = users_schema.dump(user)
-
-#     return jsonify(userResult)
 
 
 if __name__ == "__main__":
