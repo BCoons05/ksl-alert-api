@@ -226,42 +226,42 @@ def get_results_by_alert_id(id):
     return jsonify(resultResult)
 
 
-#Search all alert Results
-# This will get all results that match a search query. May not use it. 
-@app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
-def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    # search_results = db.session.execute(text('SELECT * FROM results WHERE Result.make LIKE :make AND Result.model LIKE :model AND Result.year >= :year_min AND Result.year <= :year_max AND Result.miles >= :miles_min AND Result.miles <= :miles_max AND Result.price >= :price_min AND Result.price <= :price_max'))
-    search_results = db.session.query()\
-        .filter(Result.make.like(make))\
-        .filter(Result.model.like(model))\
-        .filter(Result.year >= year_min)\
-        .filter(Result.year <= year_max)\
-        .filter(Result.miles >= miles_min)\
-        .filter(Result.miles <= miles_max)\
-        .filter(Result.price >= price_min)\
-        .filter(Result.price <= price_max).all()
-    searchResult = results_schema.dump(search_results)
+# #Search all alert Results
+# # This will get all results that match a search query. May not use it. 
+# @app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+# def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
+#     # search_results = db.session.execute(text('SELECT * FROM results WHERE Result.make LIKE :make AND Result.model LIKE :model AND Result.year >= :year_min AND Result.year <= :year_max AND Result.miles >= :miles_min AND Result.miles <= :miles_max AND Result.price >= :price_min AND Result.price <= :price_max'))
+#     search_results = db.session.query()\
+#         .filter(Result.make.like(make))\
+#         .filter(Result.model.like(model))\
+#         .filter(Result.year >= year_min)\
+#         .filter(Result.year <= year_max)\
+#         .filter(Result.miles >= miles_min)\
+#         .filter(Result.miles <= miles_max)\
+#         .filter(Result.price >= price_min)\
+#         .filter(Result.price <= price_max).all()
+#     searchResult = results_schema.dump(search_results)
 
-    return jsonify(searchResult)
+#     return jsonify(searchResult)
 
 
-#Search All Cars
-# Searches all cars in the db using given query. Need this for the Chrome extension
-@app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
-def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = db.session.query()\
-        .filter(Car.make.like(make),\
-        Car.model.like(model),\
-        Car.year >= year_min,\
-        Car.year <= year_max,\
-        Car.miles >= miles_min,\
-        Car.miles <= miles_max,\
-        Car.price >= price_min,\
-        Car.price <= price_max
-        ).all()
-    searchCars = cars_schema.dump(search_cars)
+# #Search All Cars
+# # Searches all cars in the db using given query. Need this for the Chrome extension
+# @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+# def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
+#     search_cars = db.session.query()\
+#         .filter(Car.make.like(make),\
+#         Car.model.like(model),\
+#         Car.year >= year_min,\
+#         Car.year <= year_max,\
+#         Car.miles >= miles_min,\
+#         Car.miles <= miles_max,\
+#         Car.price >= price_min,\
+#         Car.price <= price_max
+#         ).all()
+#     searchCars = cars_schema.dump(search_cars)
 
-    return jsonify(searchCars)
+#     return jsonify(searchCars)
 
 
 #Get average price
@@ -294,23 +294,23 @@ def get_average_miles(make, model, year_min, year_max):
     return miles_str[0 : miles_str.index('.')]
 
 
-#Search Alerts
-# When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
-@app.route("/alerts/<make>-<model>-<year>-<miles>-<price>", methods=["GET"])
-def get_matching_alerts(make, model, year, miles, price):
-    search_alerts = db.session.query()\
-        .filter(Alert.make.like(make),\
-        Alert.model.like(model),\
-        Alert.year_min <= year,\
-        Alert.year_max >= year,\
-        Alert.miles_min <= miles,\
-        Alert.miles_max >= miles,\
-        Alert.price_min <= price,\
-        Alert.price_max >= price
-        ).all()
-    searchAlerts = cars_schema.dump(search_alerts)
+# #Search Alerts
+# # When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
+# @app.route("/alerts/<make>-<model>-<year>-<miles>-<price>", methods=["GET"])
+# def get_matching_alerts(make, model, year, miles, price):
+#     search_alerts = db.session.query()\
+#         .filter(Alert.make.like(make),\
+#         Alert.model.like(model),\
+#         Alert.year_min <= year,\
+#         Alert.year_max >= year,\
+#         Alert.miles_min <= miles,\
+#         Alert.miles_max >= miles,\
+#         Alert.price_min <= price,\
+#         Alert.price_max >= price
+#         ).all()
+#     searchAlerts = cars_schema.dump(search_alerts)
 
-    return jsonify(searchAlerts)
+#     return jsonify(searchAlerts)
 
 
 # POST new user
