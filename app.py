@@ -172,6 +172,15 @@ def get_users():
     return jsonify(all_users)
 
 
+# get all alerts
+@app.route("/alerts", methods=["GET"])
+def get_alerts():
+    all_alerts = Alert.query.all()
+    alertsResult = alerts_schema.dump(all_alerts)
+
+    return jsonify(all_alerts)
+
+
 #get alerts by user id
 @app.route("/alerts/<id>", methods=["GET"])
 def get_alerts(id):
