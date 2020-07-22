@@ -84,7 +84,7 @@ class Result(db.Model):
     user = db.relationship("User", back_populates="results")
     alert = db.relationship("Alert", back_populates="results")
 
-    def __init__(self, year, make, model, miles, price, link, user_id):
+    def __init__(self, year, make, model, miles, price, link, user_id, alert_id):
         self.year = year
         self.make = make
         self.model = model
@@ -92,6 +92,7 @@ class Result(db.Model):
         self.price = price
         self.link = link
         self.user_id = user_id
+        self.alert_id = alert_id
 
 
 # This is used to store all cars from KSL
@@ -127,7 +128,7 @@ class AlertSchema(ma.Schema):
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id")
+        fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id", "alert_id")
 
 
 class CarSchema(ma.Schema):
@@ -362,8 +363,9 @@ def add_result():
     price = request.json["price"]
     link = request.json["link"]
     user_id = request.json["user_id"]
+    alert_id = request.json["alert_id"]
 
-    new_result = Result(year, make, model, miles, price, link, user_id)
+    new_result = Result(year, make, model, miles, price, link, user_id, alert_id)
 
     db.session.add(new_result)
     db.session.commit()
