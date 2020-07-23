@@ -234,7 +234,7 @@ def get_results_by_alert_id(id):
 @app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     # search_results = db.session.execute(text('SELECT * FROM results WHERE Result.make LIKE :make AND Result.model LIKE :model AND Result.year >= :year_min AND Result.year <= :year_max AND Result.miles >= :miles_min AND Result.miles <= :miles_max AND Result.price >= :price_min AND Result.price <= :price_max'))
-    search_results = db.session.query()\
+    search_results = db.session.query(Result)\
         .filter(Result.make.like(make))\
         .filter(Result.model.like(model))\
         .filter(Result.year >= year_min)\
@@ -302,7 +302,7 @@ def get_average_miles(make, model, year_min, year_max):
 # When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
 @app.route("/alerts/<make>-<model>-<year>-<miles>-<price>", methods=["GET"])
 def get_matching_alerts(make, model, year, miles, price):
-    search_alerts = db.session.query()\
+    search_alerts = db.session.query(Alert)\
         .filter(Alert.make.like(make),\
         Alert.model.like(model),\
         Alert.year_min <= year,\
