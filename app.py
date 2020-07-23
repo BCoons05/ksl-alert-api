@@ -312,7 +312,7 @@ def get_matching_alerts(make, model, year, miles, price):
         Alert.price_min <= price,\
         Alert.price_max >= price
         ).all()
-    searchAlerts = cars_schema.dump(search_alerts)
+    searchAlerts = alerts_schema.dump(search_alerts)
 
     return jsonify(searchAlerts)
 
