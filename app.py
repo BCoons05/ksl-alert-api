@@ -254,9 +254,9 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_cars = db.session.query()\
         .filter(Car.make.like(make),\
-        Car.model.like(model),\
-        Car.year >= year_min,\
-        Car.year <= year_max,\
+        Car.model.like(model)
+        # Car.year >= year_min,\
+        # Car.year <= year_max,\
         # Car.miles >= miles_min,\
         # Car.miles <= miles_max,\
         # Car.price >= price_min,\
