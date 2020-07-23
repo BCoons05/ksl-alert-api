@@ -252,19 +252,30 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 # Searches all cars in the db using given query. Need this for the Chrome extension
 @app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = db.session.query()\
-        .filter(Car.make.like(make),\
-        Car.model.like(model)
+    # search_cars = db.session.query()\
+        # .filter(Car.make.like(make),\
+        # Car.model.like(model)
         # Car.year >= year_min,\
         # Car.year <= year_max,\
         # Car.miles >= miles_min,\
         # Car.miles <= miles_max,\
         # Car.price >= price_min,\
         # Car.price <= price_max
-        ).all()
-    searchCars = cars_schema.dump(search_cars)
+        # ).all()
 
-    return jsonify(searchCars)
+    query = Car.select().where(Car.model.like(model),\
+        Car.model.like(model),\
+        Car.year>= year_min,\
+        Car.year <= year_max,\
+        Car.miles >= miles_min,\
+        Car.miles <= miles_max,\
+        Car.price >= price_min,\
+        Car.price <= price_max
+        )
+
+    # searchCars = cars_schema.dump(search_cars)
+
+    return jsonify(query)
 
 
 #Get average price
