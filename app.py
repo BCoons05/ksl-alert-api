@@ -321,7 +321,7 @@ def add_user():
     name = request.json["name"]
     email = request.json["email"]
 
-    new_user = User(name)
+    new_user = User(name, email)
 
     db.session.add(new_user)
     db.session.commit()
