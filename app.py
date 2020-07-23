@@ -153,6 +153,7 @@ cars_schema = CarSchema(many=True)
 # CRUD
 
 # GET user by email. Will change this to tokens
+# TODO Not working, but do I care?
 @app.route("/user/<email>", methods=["GET"])
 def get_user(email):
     found_user = User.query.filter(User.email == email)
@@ -256,10 +257,10 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
         Car.model.like(model),\
         Car.year >= year_min,\
         Car.year <= year_max,\
-        Car.miles >= miles_min,\
-        Car.miles <= miles_max,\
-        Car.price >= price_min,\
-        Car.price <= price_max
+        # Car.miles >= miles_min,\
+        # Car.miles <= miles_max,\
+        # Car.price >= price_min,\
+        # Car.price <= price_max
         ).all()
     searchCars = cars_schema.dump(search_cars)
 
