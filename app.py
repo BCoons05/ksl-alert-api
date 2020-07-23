@@ -180,7 +180,7 @@ def get_alerts():
     all_alerts = Alert.query.all()
     alertsResult = alerts_schema.dump(all_alerts)
 
-    return jsonify(all_alerts)
+    return jsonify(alertsResult)
 
 
 #get alerts by user id
