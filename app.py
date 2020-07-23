@@ -326,8 +326,9 @@ def add_user():
     db.session.add(new_user)
     db.session.commit()
 
-    user = User.query.get(new_user.name)
-    return user_schema.jsonify(user)
+    # user = User.query.get(new_user.name)
+    # return user_schema.jsonify(user)
+    return name + "was added"
 
 
 # POST new alert
