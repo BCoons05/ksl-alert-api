@@ -171,7 +171,7 @@ def get_users():
     all_users = User.query.all()
     usersResult = users_schema.dump(all_users)
 
-    return jsonify(all_users)
+    return jsonify(usersResult)
 
 
 # get all alerts
@@ -316,6 +316,7 @@ def get_matching_alerts(make, model, year, miles, price):
 
 
 # POST new user
+# TODO Changed return for testing, will probably want this to return the user info in the future
 @app.route("/user", methods=["POST"])
 def add_user():
     name = request.json["name"]
@@ -327,8 +328,8 @@ def add_user():
     db.session.commit()
 
     # user = User.query.get(new_user.name)
-    # return user_schema.jsonify(user)
-    return name + "was added"
+    return user_schema.jsonify(new_user)
+    # return name + " was added"
 
 
 # POST new alert
