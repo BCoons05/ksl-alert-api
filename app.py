@@ -235,14 +235,14 @@ def get_results_by_alert_id(id):
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     # search_results = db.session.execute(text('SELECT * FROM results WHERE Result.make LIKE :make AND Result.model LIKE :model AND Result.year >= :year_min AND Result.year <= :year_max AND Result.miles >= :miles_min AND Result.miles <= :miles_max AND Result.price >= :price_min AND Result.price <= :price_max'))
     search_results = db.session.query(Result)\
-        .filter(Result.make.like(make))\
-        .filter(Result.model.like(model))\
-        .filter(Result.year >= year_min)\
-        .filter(Result.year <= year_max)\
-        .filter(Result.miles >= miles_min)\
-        .filter(Result.miles <= miles_max)\
-        .filter(Result.price >= price_min)\
-        .filter(Result.price <= price_max).all()
+        .filter(Result.make.like(make),\
+        Result.model.like(model),\
+        Result.year >= year_min,\
+        Result.year <= year_max,\
+        Result.miles >= miles_min,\
+        Result.miles <= miles_max,\
+        Result.price >= price_min,\
+        Result.price <= price_max).all()
     searchResult = results_schema.dump(search_results)
 
     return jsonify(searchResult)
@@ -273,29 +273,36 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
 @app.route("/cars/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     average_price = db.session.query(func.avg(Car.price).label('average'))\
-        .filter(Car.make.like(make))\
-        .filter(Car.model.like(model))\
-        .filter(Car.year >= year_min)\
-        .filter(Car.year <= year_max).all()
+        .filter(Car.make.like(make),\
+        Car.model.like(model),\
+        Car.year >= year_min,\
+        Car.year <= year_max).all()
     
-    price_str = str(average_price[0][0])
+    # price_str = str(average_price[0][0])
 
-    return price_str[0 : price_str.index('.')]
+    # return price_str[0 : price_str.index('.')]
+    return jsonify({
+        'price': int(average_price[0][0])
+    })
 
 
 #Get average miles 
 # Works but returns a string
 @app.route("/cars/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
-    average_miles = db.session.query(func.avg(Car.miles).label('average')).filter(
-        Car.make.like(make)).filter(
-        Car.model.like(model)).filter(
-        Car.year >= year_min).filter(
+    average_miles = db.session.query(func.avg(Car.miles).label('average'))\
+        .filter(
+        Car.make.like(make),\
+        Car.model.like(model),\
+        Car.year >= year_min,\
         Car.year <= year_max).all()
 
-    miles_str = str(average_miles[0][0])
+    # miles_str = str(average_miles[0][0])
 
-    return miles_str[0 : miles_str.index('.')]
+    # return miles_str[0 : miles_str.index('.')]
+    return jsonify({
+        'miles': int(average_miles[0][0])
+    })
 
 
 #Search Alerts
