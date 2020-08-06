@@ -152,19 +152,6 @@ cars_schema = CarSchema(many=True)
 
 # CRUD
 
-# GET user by email. Will change this to tokens
-# TODO Not working, but do I care?
-@app.route("/user/<email>", methods=["GET"])
-def get_user(email):
-    found_user = User.query.filter(User.email == email)
-    # all_users = db.session.query(Alert).join(User).filter(User.id == Alert.user_id).all()
-    userResult = user_schema.dump(found_user)
-
-    if userResult:
-        return jsonify(userResult)
-    else:
-        return jsonify("User not found")
-
 
 #Get all users
 @app.route("/users", methods=["GET"])
@@ -338,7 +325,6 @@ def add_user():
 
     # user = User.query.get(new_user.name)
     return user_schema.jsonify(new_user)
-    # return name + " was added"
 
 
 # POST new alert
