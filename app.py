@@ -171,7 +171,7 @@ def get_alerts():
 
 
 #get alerts by user id
-@app.route("/alerts/<id>", methods=["GET"])
+@app.route("/alerts/<int:id>", methods=["GET"])
 def get_alerts_by_id(id):
     all_alerts = Alert.query.filter(Alert.user_id == id).all()
     alertResult = alerts_schema.dump(all_alerts)
@@ -198,7 +198,7 @@ def get_cars():
 
 
 #Get results by user id
-@app.route("/user_results/<id>", methods=["GET"])
+@app.route("/user_results/<int:id>", methods=["GET"])
 def get_results_by_user_id(id):
     all_results = Result.query.filter(Result.user_id == id).all()
     resultResult = results_schema.dump(all_results)
@@ -207,7 +207,7 @@ def get_results_by_user_id(id):
 
 
 #Get results by alert id
-@app.route("/alert_results/<id>", methods=["GET"])
+@app.route("/alert_results/<int:id>", methods=["GET"])
 def get_results_by_alert_id(id):
     all_results = Result.query.filter(Result.alert_id == id).all()
     resultResult = results_schema.dump(all_results)
@@ -217,7 +217,7 @@ def get_results_by_alert_id(id):
 
 #Search all alert Results
 # This will get all results that match a search query. May not use it. 
-@app.route("/search/results/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+@app.route("/search/results/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_results = db.session.query(Result)\
         .filter(Result.make.like(make),\
@@ -235,7 +235,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 
 #Search All Cars
 # Searches all cars in the db using given query. Need this for the Chrome extension
-@app.route("/search/<make>-<model>-<year_min>-<year_max>-<miles_min>-<miles_max>-<price_min>-<price_max>", methods=["GET"])
+@app.route("/search/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_cars = db.session.query(Car)\
         .filter(Car.make.like(make),\
@@ -255,7 +255,7 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
 
 #Get average price
 # Works but returns a string
-@app.route("/cars/price/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
+@app.route("/cars/price/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     average_price = db.session.query(func.avg(Car.price).label('average'))\
         .filter(Car.make.like(make),\
@@ -276,7 +276,7 @@ def get_average_price(make, model, year_min, year_max):
 
 #Get average miles 
 # Works but returns a string
-@app.route("/cars/miles/<make>-<model>-<year_min>-<year_max>", methods=["GET"])
+@app.route("/cars/miles/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
     average_miles = db.session.query(func.avg(Car.miles).label('average'))\
         .filter(
@@ -298,7 +298,7 @@ def get_average_miles(make, model, year_min, year_max):
 
 #Search Alerts
 # When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
-@app.route("/alerts/<make>-<model>-<year>-<miles>-<price>", methods=["GET"])
+@app.route("/alerts/<make>-<model>-<int:year>-<int:miles>-<int:price>", methods=["GET"])
 def get_matching_alerts(make, model, year, miles, price):
     search_alerts = db.session.query(Alert)\
         .filter(Alert.make.like(make),\
