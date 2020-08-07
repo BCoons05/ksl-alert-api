@@ -30,12 +30,14 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(), nullable = False)
     email = db.Column(db.String(), nullable = False)
+    daPass = db.Column(db.String(), nullable = False)
     results = db.relationship('Result')
     alerts = db.relationship('Alert')
 
-    def __init__(self, name, email):
+    def __init__(self, name, email, daPass):
         self.name = name
         self.email = email
+        self.daPass = daPass
 
 
 # A user's alert
@@ -52,11 +54,16 @@ class Alert(db.Model):
     miles_min = db.Column(db.Integer)
     miles_max = db.Column(db.Integer)
     deviation = db.Column(db.Integer)
+    liters = db.Column(db.String)
+    cylinders = db.Column(db.Integer, nullable = False)
+    drive = db.Column(db.String)
+    doors = db.Column(db.Integer)
+    fuel = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="alerts")
     results = db.relationship('Result')
 
-    def __init__(self, year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, user_id):
+    def __init__(self, year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, user_id):
         self.year_min = year_min
         self.year_max = year_max
         self.make = make
@@ -66,6 +73,11 @@ class Alert(db.Model):
         self.miles_min = miles_min
         self.miles_max = miles_max
         self.deviation = deviation
+        self.liters = liters
+        self.cylinders = cylinders
+        self.drive = drive
+        self.doors = doors
+        self.fuel = fuel
         self.user_id = user_id
 
 
@@ -79,18 +91,30 @@ class Result(db.Model):
     miles = db.Column(db.Integer)
     price = db.Column(db.Integer)
     link = db.Column(db.String)
+    vin = db.Column(db.String, nullable = False)
+    liters = db.Column(db.String)
+    cylinders = db.Column(db.Integer, nullable = False)
+    drive = db.Column(db.String)
+    doors = db.Column(db.Integer)
+    fuel = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
     user = db.relationship("User", back_populates="results")
     alert = db.relationship("Alert", back_populates="results")
 
-    def __init__(self, year, make, model, miles, price, link, user_id, alert_id):
+    def __init__(self, year, make, model, miles, price, link, vin, liters, cylinders, drive, doors, fuel, user_id, alert_id):
         self.year = year
         self.make = make
         self.model = model
         self.miles = miles
         self.price = price
         self.link = link
+        self.vin = vin
+        self.liters = liters
+        self.cylinders = cylinders
+        self.drive = drive
+        self.doors = doors
+        self.fuel = fuel
         self.user_id = user_id
         self.alert_id = alert_id
 
@@ -99,41 +123,53 @@ class Result(db.Model):
 class Car(db.Model):
     __tablename__ = "cars"
     id = db.Column(db.Integer, primary_key = True)
-    year = db.Column(db.Integer)
-    make = db.Column(db.String)
-    model = db.Column(db.String)
-    miles = db.Column(db.Integer)
-    price = db.Column(db.Integer)
-    link = db.Column(db.String)
+    year = db.Column(db.Integer, nullable = False)
+    make = db.Column(db.String, nullable = False)
+    model = db.Column(db.String, nullable = False)
+    miles = db.Column(db.Integer, nullable = False)
+    price = db.Column(db.Integer, nullable = False)
+    link = db.Column(db.String, nullable = False)
+    vin = db.Column(db.String, nullable = False)
+    liters = db.Column(db.String)
+    cylinders = db.Column(db.Integer, nullable = False)
+    drive = db.Column(db.String)
+    doors = db.Column(db.Integer)
+    fuel = db.Column(db.String)
 
 
-    def __init__(self, year, make, model, miles, price, link):
+    def __init__(self, year, make, model, miles, price, link, vin, liters, cylinders, drive, doors, fuel):
         self.year = year
         self.make = make
         self.model = model
         self.miles = miles
         self.price = price
         self.link = link
+        self.vin = vin
+        self.liters = liters
+        self.cylinders = cylinders
+        self.drive = drive
+        self.doors = doors
+        self.fuel = fuel
 
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "email")
+        fields = ("id", "name", "email", "daPass")
 
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "price_min", "price_max", "miles_min", "miles_max", "deviation", "user_id")
+        fields = ("id", "year_min", "year_max", "make", "model", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "user_id")
 
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "miles", "price", "link", "user_id", "alert_id")
+        fields = ("id", "year", "make", "model", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "user_id", "alert_id")
 
 
 class CarSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "miles", "price", "link")
+        fields = ("id", "year", "make", "model", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel")
 
 
 user_schema = UserSchema()
@@ -228,6 +264,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
         Result.miles <= miles_max,\
         Result.price >= price_min,\
         Result.price <= price_max).all()
+
     searchResult = results_schema.dump(search_results)
 
     return jsonify(searchResult)
@@ -235,18 +272,20 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 
 #Search All Cars
 # Searches all cars in the db using given query. Need this for the Chrome extension
+# Make and Model need to be titleized currently.
 @app.route("/search/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = db.session.query(Car)\
-        .filter(Car.make.like(make),\
-        Car.model.like(model),\
-        Car.year >= year_min,\
-        Car.year <= year_max,\
-        Car.miles >= miles_min,\
-        Car.miles <= miles_max,\
-        Car.price >= price_min,\
-        Car.price <= price_max
-        ).all()
+    search_cars = db.session.query(Car).filter(\
+    # search_cars = Car.query.filter(\
+    Car.make.like(make),\
+    Car.model.like(model),\
+    Car.year >= year_min,\
+    Car.year <= year_max,\
+    Car.miles >= miles_min,\
+    Car.miles <= miles_max,\
+    Car.price >= price_min,\
+    Car.price <= price_max
+    ).all()
 
     searchCars = cars_schema.dump(search_cars)
 
