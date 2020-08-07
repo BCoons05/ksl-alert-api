@@ -60,11 +60,12 @@ class Alert(db.Model):
     drive = db.Column(db.String)
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
+    seller = db.Column(db.String, nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="alerts")
     results = db.relationship('Result')
 
-    def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, user_id):
+    def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
         self.year_min = year_min
         self.year_max = year_max
         self.make = make
@@ -80,6 +81,7 @@ class Alert(db.Model):
         self.drive = drive
         self.doors = doors
         self.fuel = fuel
+        self.seller = seller
         self.user_id = user_id
 
 
@@ -100,12 +102,13 @@ class Result(db.Model):
     drive = db.Column(db.String)
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
+    seller = db.Column(db.String, nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
     user = db.relationship("User", back_populates="results")
     alert = db.relationship("Alert", back_populates="results")
 
-    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, user_id, alert_id):
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
         self.year = year
         self.make = make
         self.model = model
@@ -119,6 +122,7 @@ class Result(db.Model):
         self.drive = drive
         self.doors = doors
         self.fuel = fuel
+        self.seller = seller
         self.user_id = user_id
         self.alert_id = alert_id
 
@@ -140,9 +144,10 @@ class Car(db.Model):
     drive = db.Column(db.String)
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
+    seller = db.Column(db.String, nullable = False)
 
 
-    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel):
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller):
         self.year = year
         self.make = make
         self.model = model
@@ -156,6 +161,7 @@ class Car(db.Model):
         self.drive = drive
         self.doors = doors
         self.fuel = fuel
+        self.seller = seller
 
 
 class UserSchema(ma.Schema):
@@ -165,17 +171,17 @@ class UserSchema(ma.Schema):
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "user_id")
+        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id")
 
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "user_id", "alert_id")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
 
 
 class CarSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller")
 
 
 user_schema = UserSchema()
@@ -383,14 +389,21 @@ def add_alert():
     year_max = request.json["year_max"]
     make = request.json["make"]
     model = request.json["model"]
+    trim = request.json["trim"]
     price_min = request.json["price_min"]
     price_max = request.json["price_max"]
     miles_min = request.json["miles_min"]
     miles_max = request.json["miles_max"]
     deviation = request.json["deviation"]
+    liters = request.json["liters"]
+    cylinders = request.json["cylinders"]
+    drive = request.json["drive"]
+    doors = request.json["doors"]
+    fuel = request.json["fuel"]
+    seller = request.json["seller"]
     user_id = request.json["user_id"]
 
-    new_alert = Alert(year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, user_id)
+    new_alert = Alert(year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id)
 
     db.session.add(new_alert)
     db.session.commit()
@@ -406,13 +419,21 @@ def add_result():
     year = request.json["year"]
     make = request.json["make"]
     model = request.json["model"]
+    trim = request.json["trim"]
     miles = request.json["miles"]
     price = request.json["price"]
     link = request.json["link"]
+    vin = request.json["vin"]
+    liters = request.json["liters"]
+    cylinders = request.json["cylinders"]
+    drive = request.json["drive"]
+    doors = request.json["doors"]
+    fuel = request.json["fuel"]
+    seller = request.json["seller"]
     user_id = request.json["user_id"]
     alert_id = request.json["alert_id"]
 
-    new_result = Result(year, make, model, miles, price, link, user_id, alert_id)
+    new_result = Result(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id)
 
     db.session.add(new_result)
     db.session.commit()
@@ -438,8 +459,9 @@ def add_car():
     drive = request.json["drive"]
     doors = request.json["doors"]
     fuel = request.json["fuel"]
+    seller = request.json["seller"]
 
-    new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel)
+    new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller)
 
     db.session.add(new_car)
     db.session.commit()
