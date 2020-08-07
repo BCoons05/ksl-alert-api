@@ -49,6 +49,7 @@ class Alert(db.Model):
     year_max = db.Column(db.Integer)
     make = db.Column(db.String)
     model = db.Column(db.String)
+    trim = db.Column(db.String)
     price_min = db.Column(db.Integer)
     price_max = db.Column(db.Integer)
     miles_min = db.Column(db.Integer)
@@ -63,11 +64,12 @@ class Alert(db.Model):
     user = db.relationship("User", back_populates="alerts")
     results = db.relationship('Result')
 
-    def __init__(self, year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, user_id):
+    def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, user_id):
         self.year_min = year_min
         self.year_max = year_max
         self.make = make
         self.model = model
+        self.trim = trim
         self.price_min = price_min
         self.price_max = price_max
         self.miles_min = miles_min
@@ -88,6 +90,7 @@ class Result(db.Model):
     year = db.Column(db.Integer)
     make = db.Column(db.String)
     model = db.Column(db.String)
+    trim = db.Column(db.String)
     miles = db.Column(db.Integer)
     price = db.Column(db.Integer)
     link = db.Column(db.String)
@@ -102,10 +105,11 @@ class Result(db.Model):
     user = db.relationship("User", back_populates="results")
     alert = db.relationship("Alert", back_populates="results")
 
-    def __init__(self, year, make, model, miles, price, link, vin, liters, cylinders, drive, doors, fuel, user_id, alert_id):
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, user_id, alert_id):
         self.year = year
         self.make = make
         self.model = model
+        self.trim = trim
         self.miles = miles
         self.price = price
         self.link = link
@@ -126,6 +130,7 @@ class Car(db.Model):
     year = db.Column(db.Integer, nullable = False)
     make = db.Column(db.String, nullable = False)
     model = db.Column(db.String, nullable = False)
+    trim = db.Column(db.String)
     miles = db.Column(db.Integer, nullable = False)
     price = db.Column(db.Integer, nullable = False)
     link = db.Column(db.String, nullable = False)
@@ -137,10 +142,11 @@ class Car(db.Model):
     fuel = db.Column(db.String)
 
 
-    def __init__(self, year, make, model, miles, price, link, vin, liters, cylinders, drive, doors, fuel):
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel):
         self.year = year
         self.make = make
         self.model = model
+        self.trim = trim
         self.miles = miles
         self.price = price
         self.link = link
@@ -159,17 +165,17 @@ class UserSchema(ma.Schema):
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "user_id")
+        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "user_id")
 
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "user_id", "alert_id")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "user_id", "alert_id")
 
 
 class CarSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel")
 
 
 user_schema = UserSchema()
