@@ -428,11 +428,18 @@ def add_car():
     year = request.json["year"]
     make = request.json["make"]
     model = request.json["model"]
+    trim = request.json["trim"]
     miles = request.json["miles"]
     price = request.json["price"]
     link = request.json["link"]
+    vin = request.json["vin"]
+    liters = request.json["liters"]
+    cylinders = request.json["cylinders"]
+    drive = request.json["drive"]
+    doors = request.json["doors"]
+    fuel = request.json["fuel"]
 
-    new_car = Car(year, make, model, miles, price, link)
+    new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel)
 
     db.session.add(new_car)
     db.session.commit()
