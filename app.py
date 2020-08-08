@@ -466,8 +466,7 @@ def add_car():
     db.session.add(new_car)
     db.session.commit()
 
-    # return alert_schema.jsonify(new_car)
-    return f'Added {new_car.year} {new_car.make} {new_car.model}'
+    return alert_schema.jsonify(new_car)
 
 
 # PUT/PATCH by ID -- TODO this will be to update an alert. Will need an update for user info too
