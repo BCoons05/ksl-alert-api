@@ -198,6 +198,8 @@ cars_schema = CarSchema(many=True)
 
 
 # CRUD
+# TODO Need to update all searches with liters, engine, cylinders, drive, doors, seller
+# may need different routes depending on which params are passed. 
 
 
 #Get all users
@@ -305,7 +307,6 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
 
 
 #Get average price
-# Works but returns a string
 @app.route("/cars/price/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     average_price = db.session.query(func.avg(Car.price).label('average'))\
@@ -314,19 +315,15 @@ def get_average_price(make, model, year_min, year_max):
         Car.year >= year_min,\
         Car.year <= year_max).all()
     
-    # price_str = str(average_price[0][0])
-
-    # return price_str[0 : price_str.index('.')]
     if average_price[0][0]:
         return jsonify({
-            'price': int(average_price[0][0])
+            'avg_price': int(average_price[0][0])
         })
     else:
         return "not enough data"
 
 
 #Get average miles 
-# Works but returns a string
 @app.route("/cars/miles/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
     average_miles = db.session.query(func.avg(Car.miles).label('average'))\
@@ -336,12 +333,9 @@ def get_average_miles(make, model, year_min, year_max):
         Car.year >= year_min,\
         Car.year <= year_max).all()
 
-    # miles_str = str(average_miles[0][0])
-
-    # return miles_str[0 : miles_str.index('.')]
     if average_miles[0][0]:
         return jsonify({
-            'miles': int(average_miles[0][0])
+            'avg_miles': int(average_miles[0][0])
         })
     else: 
         return "not enough data"
@@ -367,7 +361,6 @@ def get_matching_alerts(make, model, year, miles, price):
 
 
 # POST new user
-# TODO Changed return for testing, will probably want this to return the user info in the future
 @app.route("/user", methods=["POST"])
 def add_user():
     name = request.json["name"]
