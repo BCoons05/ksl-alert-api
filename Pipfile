@@ -16,6 +16,7 @@ gunicorn = "*"
 flask-heroku = "*"
 psycopg2-binary = "*"
 environs = "*"
+datetime = "*"
 
 [requires]
 python_version = "3.7"

@@ -5,6 +5,7 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
 from environs import Env
+from DateTime import DateTime
 import os
 
 
@@ -30,6 +31,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(), nullable = False)
     email = db.Column(db.String(), nullable = False)
+    # Phone number for alerts
     daPass = db.Column(db.String(), nullable = False)
     results = db.relationship('Result')
     alerts = db.relationship('Alert')
@@ -37,6 +39,7 @@ class User(db.Model):
     def __init__(self, name, email, daPass):
         self.name = name
         self.email = email
+        # Phone
         self.daPass = daPass
 
 
@@ -61,6 +64,7 @@ class Alert(db.Model):
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
     seller = db.Column(db.String, nullable = False)
+    # created = db.Column()
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="alerts")
     results = db.relationship('Result')
