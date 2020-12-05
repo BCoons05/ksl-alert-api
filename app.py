@@ -43,6 +43,43 @@ class User(db.Model):
         self.daPass = daPass
 
 
+# This is used to store all cars from KSL
+class Car(db.Model):
+    __tablename__ = "cars"
+    id = db.Column(db.Integer, primary_key = True)
+    year = db.Column(db.Integer, nullable = False)
+    make = db.Column(db.String, nullable = False)
+    model = db.Column(db.String, nullable = False)
+    trim = db.Column(db.String)
+    miles = db.Column(db.Integer, nullable = False)
+    price = db.Column(db.Integer, nullable = False)
+    link = db.Column(db.String, nullable = False)
+    vin = db.Column(db.String, nullable = False)
+    liters = db.Column(db.String)
+    cylinders = db.Column(db.Integer, nullable = False)
+    drive = db.Column(db.String)
+    doors = db.Column(db.Integer)
+    fuel = db.Column(db.String)
+    seller = db.Column(db.String, nullable = False)
+
+
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller):
+        self.year = year
+        self.make = make
+        self.model = model
+        self.trim = trim
+        self.miles = miles
+        self.price = price
+        self.link = link
+        self.vin = vin
+        self.liters = liters
+        self.cylinders = cylinders
+        self.drive = drive
+        self.doors = doors
+        self.fuel = fuel
+        self.seller = seller
+
+
 # A user's alert
 # TODO Do I need price and miles min and max? We are going to use the averages or ML for price and miles ...
 class Alert(db.Model):
@@ -93,58 +130,13 @@ class Alert(db.Model):
 class Result(db.Model):
     __tablename__ = "results"
     id = db.Column(db.Integer, primary_key = True)
-    # year = db.Column(db.Integer)
-    # make = db.Column(db.String)
-    # model = db.Column(db.String)
-    # trim = db.Column(db.String)
-    # miles = db.Column(db.Integer)
-    # price = db.Column(db.Integer)
-    # link = db.Column(db.String)
-    # vin = db.Column(db.String, nullable = False)
-    # liters = db.Column(db.String)
-    # cylinders = db.Column(db.Integer, nullable = False)
-    # drive = db.Column(db.String)
-    # doors = db.Column(db.Integer)
-    # fuel = db.Column(db.String)
-    # seller = db.Column(db.String, nullable = False)
-    vehicle = db.Column(db.Car, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
-    # user = db.relationship("User", back_populates="results")
-    # alert = db.relationship("Alert", back_populates="results")
-
-    # def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
-    def __init__(self, vehicle, user_id, alert_id):
-        # self.year = year
-        # self.make = make
-        # self.model = model
-        # self.trim = trim
-        # self.miles = miles
-        # self.price = price
-        # self.link = link
-        # self.vin = vin
-        # self.liters = liters
-        # self.cylinders = cylinders
-        # self.drive = drive
-        # self.doors = doors
-        # self.fuel = fuel
-        # self.seller = seller
-        self.vehicle = vehicle
-        self.user_id = user_id
-        self.alert_id = alert_id
-
-
-# This is used to store all cars from KSL
-class Car(db.Model):
-    __tablename__ = "cars"
-    id = db.Column(db.Integer, primary_key = True)
-    year = db.Column(db.Integer, nullable = False)
-    make = db.Column(db.String, nullable = False)
-    model = db.Column(db.String, nullable = False)
+    year = db.Column(db.Integer)
+    make = db.Column(db.String)
+    model = db.Column(db.String)
     trim = db.Column(db.String)
-    miles = db.Column(db.Integer, nullable = False)
-    price = db.Column(db.Integer, nullable = False)
-    link = db.Column(db.String, nullable = False)
+    miles = db.Column(db.Integer)
+    price = db.Column(db.Integer)
+    link = db.Column(db.String)
     vin = db.Column(db.String, nullable = False)
     liters = db.Column(db.String)
     cylinders = db.Column(db.Integer, nullable = False)
@@ -152,9 +144,12 @@ class Car(db.Model):
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
     seller = db.Column(db.String, nullable = False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
+    # user = db.relationship("User", back_populates="results")
+    # alert = db.relationship("Alert", back_populates="results")
 
-
-    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller):
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
         self.year = year
         self.make = make
         self.model = model
@@ -169,6 +164,8 @@ class Car(db.Model):
         self.doors = doors
         self.fuel = fuel
         self.seller = seller
+        self.user_id = user_id
+        self.alert_id = alert_id
 
 
 class UserSchema(ma.Schema):
@@ -183,8 +180,7 @@ class AlertSchema(ma.Schema):
 
 class ResultSchema(ma.Schema):
     class Meta:
-        # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
-        fields = ("id", "vehicle", "user_id", "alert_id")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
 
 
 class CarSchema(ma.Schema):
@@ -278,22 +274,14 @@ def get_results_by_alert_id(id):
 @app.route("/search/results/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_results = db.session.query(Result)\
-        .filter(Result.vehicle.make.like(make),\
-        Result.vehicle.model.like(model),\
-        Result.vehicle.year >= year_min,\
-        Result.vehicle.year <= year_max,\
-        Result.vehicle.miles >= miles_min,\
-        Result.vehicle.miles <= miles_max,\
-        Result.vehicle.price >= price_min,\
-        Result.vehicle.price <= price_max).all()
-        # .filter(Result.make.like(make),\
-        # Result.model.like(model),\
-        # Result.year >= year_min,\
-        # Result.year <= year_max,\
-        # Result.miles >= miles_min,\
-        # Result.miles <= miles_max,\
-        # Result.price >= price_min,\
-        # Result.price <= price_max).all()
+        .filter(Result.make.like(make),\
+        Result.model.like(model),\
+        Result.year >= year_min,\
+        Result.year <= year_max,\
+        Result.miles >= miles_min,\
+        Result.miles <= miles_max,\
+        Result.price >= price_min,\
+        Result.price <= price_max).all()
 
     searchResult = results_schema.dump(search_results)
 
@@ -425,26 +413,24 @@ def add_alert():
 # If car matches an alert, then we will post that car as a result with the matching alert id
 @app.route("/result", methods=["POST"])
 def add_result():
-    # year = request.json["year"]
-    # make = request.json["make"]
-    # model = request.json["model"]
-    # trim = request.json["trim"]
-    # miles = request.json["miles"]
-    # price = request.json["price"]
-    # link = request.json["link"]
-    # vin = request.json["vin"]
-    # liters = request.json["liters"]
-    # cylinders = request.json["cylinders"]
-    # drive = request.json["drive"]
-    # doors = request.json["doors"]
-    # fuel = request.json["fuel"]
-    # seller = request.json["seller"]
-    vehicle = request.json["vehicle"]
+    year = request.json["year"]
+    make = request.json["make"]
+    model = request.json["model"]
+    trim = request.json["trim"]
+    miles = request.json["miles"]
+    price = request.json["price"]
+    link = request.json["link"]
+    vin = request.json["vin"]
+    liters = request.json["liters"]
+    cylinders = request.json["cylinders"]
+    drive = request.json["drive"]
+    doors = request.json["doors"]
+    fuel = request.json["fuel"]
+    seller = request.json["seller"]
     user_id = request.json["user_id"]
     alert_id = request.json["alert_id"]
 
-    # new_result = Result(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id)
-    new_result = Result(vehicle, user_id, alert_id)
+    new_result = Result(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id)
 
     db.session.add(new_result)
     db.session.commit()
