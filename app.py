@@ -412,8 +412,9 @@ def check_alerts(car):
 def add_user():
     name = request.json["name"]
     email = request.json["email"]
+    daPass = request.json["daPass"]
 
-    new_user = User(name, email)
+    new_user = User(name, email, daPass)
 
     db.session.add(new_user)
     db.session.commit()
