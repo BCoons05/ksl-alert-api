@@ -367,6 +367,7 @@ def get_matching_alerts(make, model, year, miles, price):
 # POST Search Alerts
 @app.route("/alert/search", methods=["POST"])
 def check_alerts():
+    default = 'any'
     year = request.json["year"]
     make = request.json["make"]
     model = request.json["model"]
@@ -392,12 +393,12 @@ def check_alerts():
         Alert.miles_max >= miles,\
         Alert.price_min <= price,\
         Alert.price_max >= price,\
-        or_(Alert.liters == 'any', liters == Alert.liters),\
+        or_(Alert.liters == default, liters == Alert.liters),\
         or_(Alert.cylinders == 0, cylinders == Alert.cylinders),\
-        or_(Alert.drive == 'any', drive == Alert.drive),\
+        or_(Alert.drive == default, drive == Alert.drive),\
         or_(Alert.doors == 0, doors == Alert.doors),\
-        or_(Alert.fuel == 'any', fuel == Alert.fuel),\
-        or_(Alert.seller == 'any', seller == Alert.seller)
+        or_(Alert.fuel == default, fuel == Alert.fuel),\
+        or_(Alert.seller == default, seller == Alert.seller)
         ).all()
 
     searchAlerts = alerts_schema.dump(search_alerts)
