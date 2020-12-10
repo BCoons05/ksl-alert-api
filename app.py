@@ -444,7 +444,7 @@ def add_alert():
     seller = request.json["seller"]
     user_id = request.json["user_id"]
 
-    new_alert = Alert(year_min, year_max, make, model, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id)
+    new_alert = Alert(year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id)
 
     db.session.add(new_alert)
     db.session.commit()
@@ -479,8 +479,7 @@ def add_result():
     db.session.add(new_result)
     db.session.commit()
 
-    result = Result.query.get(new_result.user_id)
-    return alert_schema.jsonify(result)
+    return alert_schema.jsonify(new_result)
 
 
 # POST new car
