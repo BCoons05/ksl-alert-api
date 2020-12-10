@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func, text
+from sqlalchemy.sql import func, text, or_
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
@@ -394,12 +394,12 @@ def check_alerts():
         Alert.miles_max >= miles,\
         Alert.price_min <= price,\
         Alert.price_max >= price,\
-        (Alert.liters == liters or Alert.liters == "any"),\
-        (Alert.cylinders == cylinders or str(Alert.cylinders) == "any"),\
-        (Alert.drive == drive or Alert.drive == "any"),\
-        (Alert.doors == doors or str(Alert.doors) == "any"),\
-        (Alert.fuel == fuel or Alert.fuel == "any"),\
-        (Alert.seller == seller or Alert.seller == "any"),\
+        or_(Alert.liters == liters, Alert.liters == "any"),\
+        or_(Alert.cylinders == cylinders, str(Alert.cylinders) == "any"),\
+        or_(Alert.drive == drive, Alert.drive == "any"),\
+        or_(Alert.doors == doors, str(Alert.doors) == "any"),\
+        or_(Alert.fuel == fuel, Alert.fuel == "any"),\
+        or_(Alert.seller == seller, Alert.seller == "any"),\
         ).all()
 
     searchAlerts = alerts_schema.dump(search_alerts)
