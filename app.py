@@ -382,7 +382,7 @@ def check_alerts():
     fuel = request.json["fuel"]
     seller = request.json["seller"]
 
-    search_alerts = Alert.query\
+    search_alerts = db.session.query(Alert)\
         .filter(Alert.make.like(make),\
         Alert.model.like(model),\
         Alert.trim.like(trim),\
