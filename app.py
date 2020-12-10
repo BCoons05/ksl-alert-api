@@ -7,6 +7,7 @@ from flask_heroku import Heroku
 from environs import Env
 from DateTime import DateTime
 import os
+import json
 
 
 app = Flask(__name__)
@@ -359,6 +360,48 @@ def get_matching_alerts(make, model, year, miles, price):
         Alert.price_min <= price,\
         Alert.price_max >= price
         ).all()
+    searchAlerts = alerts_schema.dump(search_alerts)
+
+    return jsonify(searchAlerts)
+
+# POST new alert
+@app.route("/alert/search", methods=["POST"])
+def check_alerts(car):
+    json.loads(car)
+
+    year = car["year"]
+    make = car["make"]
+    model = car["model"]
+    trim = car["trim"]
+    miles = car["miles"]
+    price = car["price"]
+    link = car["link"]
+    vin = car["vin"]
+    liters = car["liters"]
+    cylinders = car["cylinders"]
+    drive = car["drive"]
+    doors = car["doors"]
+    fuel = car["fuel"]
+    seller = car["seller"]
+
+    search_alerts = db.session.query(Alert)\
+        .filter(Alert.make.like(make),\
+        Alert.model.like(model),\
+        Alert.trim.like(trim),\
+        Alert.year_min <= year,\
+        Alert.year_max >= year,\
+        Alert.miles_min <= miles,\
+        Alert.miles_max >= miles,\
+        Alert.price_min <= price,\
+        Alert.price_max >= price,\
+        (Alert.liters == liters | Alert.liters == "any"),\
+        (Alert.cylinders == cylinders | Alert.cylinders == "any"),\
+        (Alert.drive == drive | Alert.drive == "any"),\
+        (Alert.doors == doors | Alert.doors == "any"),\
+        (Alert.fuel == fuel | Alert.fuel == "any"),\
+        (Alert.seller == seller | Alert.seller == "any"),\
+        ).all()
+
     searchAlerts = alerts_schema.dump(search_alerts)
 
     return jsonify(searchAlerts)
