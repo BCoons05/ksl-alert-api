@@ -392,18 +392,18 @@ def check_alerts():
         Alert.miles_max >= miles,\
         Alert.price_min <= price,\
         Alert.price_max >= price,\
-        Alert.liters == liters,\
-        Alert.cylinders == cylinders,\
-        Alert.drive == drive,\
-        Alert.doors == doors,\
-        Alert.fuel == fuel,\
-        Alert.seller == seller,\
-        # or_(Alert.liters == liters, Alert.liters == "any"),\
-        # or_(Alert.cylinders == cylinders, str(Alert.cylinders) == "any"),\
-        # or_(Alert.drive == drive, Alert.drive == "any"),\
-        # or_(Alert.doors == doors, str(Alert.doors) == "any"),\
-        # or_(Alert.fuel == fuel, Alert.fuel == "any"),\
-        # or_(Alert.seller == seller, Alert.seller == "any")
+        # Alert.liters == liters,\
+        # Alert.cylinders == cylinders,\
+        # Alert.drive == drive,\
+        # Alert.doors == doors,\
+        # Alert.fuel == fuel,\
+        # Alert.seller == seller,\
+        or_(Alert.liters == liters, Alert.liters == "any"),\
+        or_(Alert.cylinders == cylinders, str(Alert.cylinders) == "any"),\
+        or_(Alert.drive == drive, Alert.drive == "any"),\
+        or_(Alert.doors == doors, str(Alert.doors) == "any"),\
+        or_(Alert.fuel == fuel, Alert.fuel == "any"),\
+        or_(Alert.seller == seller, Alert.seller == "any")
         ).all()
 
     searchAlerts = alerts_schema.dump(search_alerts)
