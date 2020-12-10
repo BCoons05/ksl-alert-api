@@ -367,22 +367,20 @@ def get_matching_alerts(make, model, year, miles, price):
 # POST Search Alerts
 @app.route("/alert/search", methods=["POST"])
 def check_alerts():
-    car = request.json
-
-    year = car["year"]
-    make = car["make"]
-    model = car["model"]
-    trim = car["trim"]
-    miles = car["miles"]
-    price = car["price"]
-    link = car["link"]
-    vin = car["vin"]
-    liters = car["liters"]
-    cylinders = car["cylinders"]
-    drive = car["drive"]
-    doors = car["doors"]
-    fuel = car["fuel"]
-    seller = car["seller"]
+    year = request.json["year"]
+    make = request.json["make"]
+    model = request.json["model"]
+    trim = request.json["trim"]
+    miles = request.json["miles"]
+    price = request.json["price"]
+    link = request.json["link"]
+    vin = request.json["vin"]
+    liters = request.json["liters"]
+    cylinders = request.json["cylinders"]
+    drive = request.json["drive"]
+    doors = request.json["doors"]
+    fuel = request.json["fuel"]
+    seller = request.json["seller"]
 
     search_alerts = db.session.query(Alert)\
         .filter(Alert.make.like(make),\
@@ -394,12 +392,18 @@ def check_alerts():
         Alert.miles_max >= miles,\
         Alert.price_min <= price,\
         Alert.price_max >= price,\
-        or_(Alert.liters == liters, Alert.liters == "any"),\
-        or_(Alert.cylinders == cylinders, str(Alert.cylinders) == "any"),\
-        or_(Alert.drive == drive, Alert.drive == "any"),\
-        or_(Alert.doors == doors, str(Alert.doors) == "any"),\
-        or_(Alert.fuel == fuel, Alert.fuel == "any"),\
-        or_(Alert.seller == seller, Alert.seller == "any"),\
+        Alert.liters == liters,\
+        Alert.cylinders == cylinders,\
+        Alert.drive == drive,\
+        Alert.doors == doors,\
+        Alert.fuel == fuel,\
+        Alert.seller == seller,\
+        # or_(Alert.liters == liters, Alert.liters == "any"),\
+        # or_(Alert.cylinders == cylinders, str(Alert.cylinders) == "any"),\
+        # or_(Alert.drive == drive, Alert.drive == "any"),\
+        # or_(Alert.doors == doors, str(Alert.doors) == "any"),\
+        # or_(Alert.fuel == fuel, Alert.fuel == "any"),\
+        # or_(Alert.seller == seller, Alert.seller == "any")
         ).all()
 
     searchAlerts = alerts_schema.dump(search_alerts)
