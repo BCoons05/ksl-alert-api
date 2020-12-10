@@ -364,7 +364,7 @@ def get_matching_alerts(make, model, year, miles, price):
 
     return jsonify(searchAlerts)
 
-# POST new alert
+# POST Search Alerts
 @app.route("/alert/search", methods=["POST"])
 def check_alerts(car):
     json.loads(car)
@@ -449,8 +449,8 @@ def add_alert():
     db.session.add(new_alert)
     db.session.commit()
 
-    alert = Alert.query.get(new_alert.user_id)
-    return alert_schema.jsonify(alert)
+    # alert = Alert.query.get(new_alert.user_id)
+    return alert_schema.jsonify(new_alert)
 
 
 # POST new result
