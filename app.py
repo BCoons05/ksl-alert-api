@@ -397,7 +397,7 @@ def check_alerts():
         or_(Alert.drive == 'any', drive == Alert.drive),\
         or_(str(Alert.doors) == 'any', doors == Alert.doors),\
         or_(Alert.fuel == 'any', fuel == Alert.fuel),\
-        or_(Alert.seller == 'any', seller = Alert.seller)
+        or_(Alert.seller == 'any', seller == Alert.seller)
         ).all()
 
     searchAlerts = alerts_schema.dump(search_alerts)
