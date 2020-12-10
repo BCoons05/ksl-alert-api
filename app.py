@@ -393,9 +393,9 @@ def check_alerts():
         Alert.price_min <= price,\
         Alert.price_max >= price,\
         or_(Alert.liters == 'any', liters == Alert.liters),\
-        or_(str(Alert.cylinders) == 'any', cylinders == Alert.cylinders),\
+        or_(Alert.cylinders == 0, cylinders == Alert.cylinders),\
         or_(Alert.drive == 'any', drive == Alert.drive),\
-        or_(str(Alert.doors) == 'any', doors == Alert.doors),\
+        or_(Alert.doors == 0, doors == Alert.doors),\
         or_(Alert.fuel == 'any', fuel == Alert.fuel),\
         or_(Alert.seller == 'any', seller == Alert.seller)
         ).all()
