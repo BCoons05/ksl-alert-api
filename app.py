@@ -367,7 +367,7 @@ def get_matching_alerts(make, model, year, miles, price):
 # POST Search Alerts
 @app.route("/alert/search", methods=["POST"])
 def check_alerts():
-    car = json.loads(request.body)
+    car = json.loads(request.data)
 
     year = car["year"]
     make = car["make"]
