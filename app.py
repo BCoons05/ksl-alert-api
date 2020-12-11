@@ -171,7 +171,9 @@ class Result(db.Model):
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "email", "daPass")
+        fields = ("id", "name", "email", "daPass", "alerts", "results")
+    alerts = ma.Nested(AlertSchema)
+    results = ma.Nested(ResultSchema)
 
 
 class AlertSchema(ma.Schema):
