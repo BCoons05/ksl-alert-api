@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func, text, or_, joinedload
+from sqlalchemy.sql import func, text, or_
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
@@ -34,8 +34,8 @@ class User(db.Model):
     email = db.Column(db.String(), nullable = False)
     # Phone number for alerts
     daPass = db.Column(db.String(), nullable = False)
-    results = db.relationship('Result', backref='user', lazy=True)
-    alerts = db.relationship('Alert', backref='user', lazy=True)
+    results = db.relationship('Result', backref='user', lazy='joined')
+    alerts = db.relationship('Alert', backref='user', lazy='joined')
 
     def __init__(self, name, email, daPass):
         self.name = name
@@ -105,7 +105,7 @@ class Alert(db.Model):
     # created = db.Column()
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # user = db.relationship("User", back_populates="alerts")
-    results = db.relationship('Result', backref='alert', lazy=True)
+    results = db.relationship('Result', backref='alert', lazy='joined')
 
     def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
         self.year_min = year_min
@@ -270,16 +270,16 @@ def get_results_by_alert_id(id):
     return jsonify(resultResult)
 
 
-#Get all alerts and results for a user
-@app.route("/user/alerts/results", methods=["POST"])
-def get_user_alerts_and_results():
-    username = request.json["email"]
-    daPass = request.json["daPass"]
+# #Get all alerts and results for a user
+# @app.route("/user/alerts/results", methods=["POST"])
+# def get_user_alerts_and_results():
+#     username = request.json["email"]
+#     daPass = request.json["daPass"]
 
-    user_results = db.session.query(User)\
-        .options(joinedload(User.alerts).joinedload(User.results)).all()
+#     user_results = db.session.query(User)\
+#         .options(lazyload(User.alerts).lazyload(User.results)).all()
 
-    return user_results
+#     return user_results
 
 
 #Search all alert Results
