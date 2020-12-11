@@ -386,7 +386,7 @@ def check_alerts():
     search_alerts = db.session.query(Alert)\
         .filter(Alert.make.like(make),\
         Alert.model.like(model),\
-        Alert.trim.like(trim),\
+        or_(Alert.trim == default, trim == Alert.trim),\
         Alert.year_min <= year,\
         Alert.year_max >= year,\
         Alert.miles_min <= miles,\
