@@ -19,7 +19,6 @@ env.read_env()
 DATABASE_URL = env("DATABASE_URL")
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 
 
@@ -27,25 +26,43 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 
+
 class User(db.Model):
+    """Class for new user.
+
+    preferred contact can be "phone", "email", or "off".
+    active will be set to True unless account is cancelled. 
+    Deactivated should then be set to the date of cancellation.
+    """
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(), nullable = False)
     email = db.Column(db.String(), nullable = False)
-    # Phone number for alerts
+    phone = db.Column(db.Integer)
+    preferred_contact = db.Column(db.String, nullable = False)
     daPass = db.Column(db.String(), nullable = False)
+    created_on = db.Column(db.DateTime, nullable = False)
+    active = db.Column(db.Boolean, nullable = False)
+    deactivated = db.Column(db.DateTime)
     results = db.relationship('Result', backref='user', lazy='joined')
     alerts = db.relationship('Alert', backref='user', lazy='joined')
 
-    def __init__(self, name, email, daPass):
+    def __init__(self, name, email, phone, preferred_contact, daPass):
         self.name = name
         self.email = email
-        # Phone
+        self.phone = phone
+        self.preferred_contact = preferred_contact
         self.daPass = daPass
+        self.created_on = DateTime.Now()
+        self.active = True
 
 
-# This is used to store all cars from KSL
+
 class Car(db.Model):
+    """Class for a car object
+
+    This is used to store all cars to the db. 
+    """
     __tablename__ = "cars"
     id = db.Column(db.Integer, primary_key = True)
     year = db.Column(db.Integer, nullable = False)
@@ -81,9 +98,14 @@ class Car(db.Model):
         self.seller = seller
 
 
-# A user's alert
 # TODO Do I need price and miles min and max? We are going to use the averages or ML for price and miles ...
 class Alert(db.Model):
+    """Class for alerts
+
+    used to create a new alert object to store in the db.
+    Needs a user_id to the user that created the alert.
+    Results will be joined if the result fits the parameters in this alert.
+    """
     __tablename__ = "alerts"
     id = db.Column(db.Integer, primary_key = True)
     year_min = db.Column(db.Integer)
@@ -104,7 +126,6 @@ class Alert(db.Model):
     seller = db.Column(db.String, nullable = False)
     # created = db.Column()
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    # user = db.relationship("User", back_populates="alerts")
     results = db.relationship('Result', backref='alert', lazy='joined')
 
     def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
@@ -129,42 +150,49 @@ class Alert(db.Model):
 
 # This stores any cars that match an alert. related to user and alert.
 class Result(db.Model):
+    """Class for a result object
+
+    Used to add a result to db. Holds the user id, alert id, and car id.
+    User id is the user that created the alert. Alert id is the alert that 
+    this result matched to. Car id is the car that matches the alert
+    """
     __tablename__ = "results"
     id = db.Column(db.Integer, primary_key = True)
-    year = db.Column(db.Integer)
-    make = db.Column(db.String)
-    model = db.Column(db.String)
-    trim = db.Column(db.String)
-    miles = db.Column(db.Integer)
-    price = db.Column(db.Integer)
-    link = db.Column(db.String)
-    vin = db.Column(db.String, nullable = False)
-    liters = db.Column(db.String)
-    cylinders = db.Column(db.Integer, nullable = False)
-    drive = db.Column(db.String)
-    doors = db.Column(db.Integer)
-    fuel = db.Column(db.String)
-    seller = db.Column(db.String, nullable = False)
+    # year = db.Column(db.Integer)
+    # make = db.Column(db.String)
+    # model = db.Column(db.String)
+    # trim = db.Column(db.String)
+    # miles = db.Column(db.Integer)
+    # price = db.Column(db.Integer)
+    # link = db.Column(db.String)
+    # vin = db.Column(db.String, nullable = False)
+    # liters = db.Column(db.String)
+    # cylinders = db.Column(db.Integer, nullable = False)
+    # drive = db.Column(db.String)
+    # doors = db.Column(db.Integer)
+    # fuel = db.Column(db.String)
+    # seller = db.Column(db.String, nullable = False)
+    car_id = db.Column(db.Integer, db.ForeignKey('cars.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
-    # user = db.relationship("User", back_populates="results")
-    # alert = db.relationship("Alert", back_populates="results")
 
-    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
-        self.year = year
-        self.make = make
-        self.model = model
-        self.trim = trim
-        self.miles = miles
-        self.price = price
-        self.link = link
-        self.vin = vin
-        self.liters = liters
-        self.cylinders = cylinders
-        self.drive = drive
-        self.doors = doors
-        self.fuel = fuel
-        self.seller = seller
+    # def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
+    def __init__(self, car_id, user_id, alert_id):
+        # self.year = year
+        # self.make = make
+        # self.model = model
+        # self.trim = trim
+        # self.miles = miles
+        # self.price = price
+        # self.link = link
+        # self.vin = vin
+        # self.liters = liters
+        # self.cylinders = cylinders
+        # self.drive = drive
+        # self.doors = doors
+        # self.fuel = fuel
+        # self.seller = seller
+        self.car_id = car_id
         self.user_id = user_id
         self.alert_id = alert_id
 
@@ -179,7 +207,9 @@ cars_schema = CarSchema(many=True)
 
 class ResultSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
+        # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
+        fields = ("id", "car", "user_id", "alert_id")
+    car = ma.Nested(car_schema)
 
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
@@ -203,50 +233,58 @@ user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
 
-# CRUD
-# TODO Need to update all searches with liters, engine, cylinders, drive, doors, seller
-# may need different routes depending on which params are passed. 
-
-
-#Get all users
 @app.route("/users", methods=["GET"])
 def get_users():
+    """
+    Gets all users
+    """
     all_users = User.query.all()
     usersResult = users_schema.dump(all_users)
 
     return jsonify(usersResult)
 
 
-# get all alerts
 @app.route("/alerts", methods=["GET"])
 def get_alerts():
+    """
+    Gets all alerts
+    """
     all_alerts = Alert.query.all()
     alertsResult = alerts_schema.dump(all_alerts)
 
     return jsonify(alertsResult)
 
 
-#get alerts by user id
+
 @app.route("/alerts/<int:id>", methods=["GET"])
 def get_alerts_by_id(id):
+    """
+    Gets all alerts that match the given id
+    """
     all_alerts = Alert.query.filter(Alert.user_id == id).all()
     alertResult = alerts_schema.dump(all_alerts)
 
     return jsonify(alertResult)
 
 
-#Get all results for all users
+
 @app.route("/results", methods=["GET"])
 def get_results():
+    """
+    Gets all results for all users
+    """
     all_results = Result.query.all()
     resultResult = results_schema.dump(all_results)
 
     return jsonify(resultResult)
 
 
-#Get all cars 
+
 @app.route("/cars", methods=["GET"])
 def get_cars():
+    """
+    Gets all cars
+    """
     all_cars = Car.query.all()
     carResult = cars_schema.dump(all_cars)
 
@@ -256,6 +294,9 @@ def get_cars():
 #Get results by user id
 @app.route("/user_results/<int:id>", methods=["GET"])
 def get_results_by_user_id(id):
+    """
+    Gets all results by user id
+    """
     all_results = Result.query.filter(Result.user_id == id).all()
     resultResult = results_schema.dump(all_results)
 
@@ -265,6 +306,9 @@ def get_results_by_user_id(id):
 #Get results by alert id
 @app.route("/alert_results/<int:id>", methods=["GET"])
 def get_results_by_alert_id(id):
+    """
+    Gets all results for a given alert id
+    """
     all_results = Result.query.filter(Result.alert_id == id).all()
     resultResult = results_schema.dump(all_results)
 
@@ -376,6 +420,7 @@ def get_average_miles(make, model, year_min, year_max):
 #     searchAlerts = alerts_schema.dump(search_alerts)
 
 #     return jsonify(searchAlerts)
+
 
 # POST Search Alerts
 # When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
