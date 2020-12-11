@@ -169,39 +169,35 @@ class Result(db.Model):
         self.alert_id = alert_id
 
 
-class UserSchema(ma.Schema):
-    class Meta:
-        fields = ("id", "name", "email", "daPass", "alerts", "results")
-    alerts = ma.Nested(alert_schema)
-    results = ma.Nested(result_schema)
-
-
 class AlertSchema(ma.Schema):
     class Meta:
         fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id")
 
+alert_schema = AlertSchema()
+alerts_schema = AlertSchema(many=True)
 
 class ResultSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
 
+result_schema = ResultSchema()
+results_schema = ResultSchema(many=True)
 
 class CarSchema(ma.Schema):
     class Meta:
         fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller")
 
+car_schema = CarSchema()
+cars_schema = CarSchema(many=True)
+
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "email", "daPass", "alerts", "results")
+    alerts = ma.Nested(alerts_schema)
+    results = ma.Nested(results_schema)
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
-
-alert_schema = AlertSchema()
-alerts_schema = AlertSchema(many=True)
-
-result_schema = ResultSchema()
-results_schema = ResultSchema(many=True)
-
-car_schema = CarSchema()
-cars_schema = CarSchema(many=True)
 
 
 # CRUD
