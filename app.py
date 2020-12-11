@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func, text, or_
+from sqlalchemy.sql import func, text, or_, lazyload, joinedload
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from flask_heroku import Heroku
@@ -270,6 +270,18 @@ def get_results_by_alert_id(id):
     return jsonify(resultResult)
 
 
+#Get all alerts and results for a user
+@app.route("/user/alerts/results", methods=["POST"])
+def get_user_alerts_and_results():
+    username = request.json["email"]
+    daPass = request.json["daPass"]
+
+    user_results = db.session.query(User)\
+        .options(joinedload(User.alerts).joinedload(User.results)).all()
+
+    return user_results
+
+
 #Search all alert Results
 # This will get all results that match a search query. May not use it. 
 @app.route("/search/results/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
@@ -348,23 +360,24 @@ def get_average_miles(make, model, year_min, year_max):
 
 #Search Alerts
 # When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
-@app.route("/alerts/<make>-<model>-<int:year>-<int:miles>-<int:price>", methods=["GET"])
-def get_matching_alerts(make, model, year, miles, price):
-    search_alerts = db.session.query(Alert)\
-        .filter(Alert.make.like(make),\
-        Alert.model.like(model),\
-        Alert.year_min <= year,\
-        Alert.year_max >= year,\
-        Alert.miles_min <= miles,\
-        Alert.miles_max >= miles,\
-        Alert.price_min <= price,\
-        Alert.price_max >= price
-        ).all()
-    searchAlerts = alerts_schema.dump(search_alerts)
+# @app.route("/alerts/<make>-<model>-<int:year>-<int:miles>-<int:price>", methods=["GET"])
+# def get_matching_alerts(make, model, year, miles, price):
+#     search_alerts = db.session.query(Alert)\
+#         .filter(Alert.make.like(make),\
+#         Alert.model.like(model),\
+#         Alert.year_min <= year,\
+#         Alert.year_max >= year,\
+#         Alert.miles_min <= miles,\
+#         Alert.miles_max >= miles,\
+#         Alert.price_min <= price,\
+#         Alert.price_max >= price
+#         ).all()
+#     searchAlerts = alerts_schema.dump(search_alerts)
 
-    return jsonify(searchAlerts)
+#     return jsonify(searchAlerts)
 
 # POST Search Alerts
+# When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
 @app.route("/alert/search", methods=["POST"])
 def check_alerts():
     default = 'any'
