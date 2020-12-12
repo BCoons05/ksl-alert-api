@@ -38,7 +38,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(), nullable = False)
     email = db.Column(db.String(), nullable = False)
-    phone = db.Column(db.Integer)
+    phone = db.Column(db.String())
     preferred_contact = db.Column(db.String, nullable = False)
     daPass = db.Column(db.String(), nullable = False)
     created_on = db.Column(db.DateTime, nullable = False)
@@ -53,7 +53,7 @@ class User(db.Model):
         self.phone = phone
         self.preferred_contact = preferred_contact
         self.daPass = daPass
-        self.created_on = datetime.datetime.now()
+        self.created_on = datetime.datetime.now().strftime("%c")
         self.active = True
 
 
