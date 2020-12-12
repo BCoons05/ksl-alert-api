@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func, text, or_
-from flask_marshmallow import Marshmallow
+from flask_marshmallow import Marshmallow, fields
 from flask_cors import CORS
 from flask_heroku import Heroku
 from environs import Env
@@ -254,7 +254,7 @@ users_schema = UserSchema(many=True)
 class Last_Scrape_Schema(ma.Schema):
     class Meta:
         fields = ("vins")
-    vins = ma.fields.List(ma.fields.String())
+    vins = ma.Nested(list(str))
 
 
 @app.route("/users", methods=["GET"])
