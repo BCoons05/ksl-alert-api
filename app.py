@@ -59,10 +59,6 @@ class User(db.Model):
 
 
 class Car(db.Model):
-    """Class for a car object
-
-    This is used to store all cars to the db. 
-    """
     __tablename__ = "cars"
     id = db.Column(db.Integer, primary_key = True)
     year = db.Column(db.Integer, nullable = False)
