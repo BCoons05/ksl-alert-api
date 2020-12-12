@@ -253,8 +253,8 @@ users_schema = UserSchema(many=True)
 
 class Last_Scrape_Schema(ma.Schema):
     class Meta:
-        fields = ("vins")
-    vins = ma.List
+        fields = ("vins", )
+    vins = ma.List(ma.String)
 
 
 @app.route("/users", methods=["GET"])
