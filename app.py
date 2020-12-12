@@ -503,9 +503,11 @@ def check_alerts():
 def add_user():
     name = request.json["name"]
     email = request.json["email"]
+    phone = request.json["phone"]
+    preferred_contact = request.json["preferred_contact"]
     daPass = request.json["daPass"]
 
-    new_user = User(name, email, daPass)
+    new_user = User(name, email, phone, preferred_contact, daPass)
 
     db.session.add(new_user)
     db.session.commit()
