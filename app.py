@@ -5,7 +5,7 @@ from flask_marshmallow import Marshmallow, fields
 from flask_cors import CORS
 from flask_heroku import Heroku
 from environs import Env
-from DateTime import DateTime
+import datetime
 import os
 import json
 
@@ -53,7 +53,7 @@ class User(db.Model):
         self.phone = phone
         self.preferred_contact = preferred_contact
         self.daPass = daPass
-        self.created_on = DateTime.now()
+        self.created_on = datetime.datetime.now()
         self.active = True
 
 
