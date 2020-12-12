@@ -98,6 +98,24 @@ class Car(db.Model):
         self.seller = seller
 
 
+
+class Last_Scrape(db.Model):
+    """Stores the car vins from the previous scrape.
+
+    This is used like redis, to store the cars that we scraped last.
+    We will check this table to see if we have a duplicate in the new
+    scrape before adding the car to the db. Clear this table after each 
+    use, then store the new scrape here.
+    """
+
+    id = db.Column(db.Integer, primary_key = True)
+    vins = db.Column(db.PickleType)
+
+    def __init__(self, vins):
+        self.vins = vins
+
+
+
 # TODO Do I need price and miles min and max? We are going to use the averages or ML for price and miles ...
 class Alert(db.Model):
     """Class for alerts
@@ -233,6 +251,11 @@ user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
 
+class Last_Scrape_Schema(ma.Schema):
+    class Meta:
+        fields = ("vins")
+
+
 @app.route("/users", methods=["GET"])
 def get_users():
     """
@@ -289,6 +312,19 @@ def get_cars():
     carResult = cars_schema.dump(all_cars)
 
     return jsonify(carResult)
+
+
+@app.route("/get-last", methods=["GET"])
+def get_last_scrape():
+    """
+    Gets the vins from the last scrape
+
+    used to check for duplicate listings
+    """
+    get_scrape = Last_Scrape.query.all()
+    last_scrape = Last_Scrape_Schema.dump(get_scrape)
+
+    return jsonify(last_scrape)
 
 
 #Get results by user id
@@ -538,6 +574,15 @@ def add_result():
     db.session.commit()
 
     return alert_schema.jsonify(new_result)
+
+
+
+@app.route("/set-last", methods=["POST"])
+def set_last():
+    db.session.add(request.json["vins"])
+    db.session.commit()
+
+    return request.json["vins"]
 
 
 # POST new car
