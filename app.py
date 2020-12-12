@@ -53,7 +53,7 @@ class User(db.Model):
         self.phone = phone
         self.preferred_contact = preferred_contact
         self.daPass = daPass
-        self.created_on = DateTime.Now()
+        self.created_on = DateTime.now()
         self.active = True
 
 
