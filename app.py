@@ -240,7 +240,7 @@ alerts_schema = AlertSchema(many=True)
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "email", "daPass", "alerts")
+        fields = ("id", "name", "email", "phone", "preferred_contact", "daPass", "alerts")
     alerts = ma.Nested(alerts_schema)
 
 user_schema = UserSchema()
