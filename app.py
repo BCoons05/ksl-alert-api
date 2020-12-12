@@ -254,7 +254,7 @@ users_schema = UserSchema(many=True)
 class Last_Scrape_Schema(ma.Schema):
     class Meta:
         fields = ("vins")
-    vins = ma.Nested(list(str))
+    vins = ma.Nested(ma.List)
 
 
 @app.route("/users", methods=["GET"])
