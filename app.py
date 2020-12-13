@@ -321,7 +321,9 @@ def get_last_scrape():
     get_scrape = Last_Scrape.query.first()
     last_scrape = Last_Scrape_Schema.dump(get_scrape)
 
-    return jsonify(get_scrape)
+    return jsonify({
+            'last_scrape': last_scrape
+        })
 
 
 #Get results by user id
