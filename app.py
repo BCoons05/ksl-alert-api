@@ -321,9 +321,7 @@ def get_last_scrape():
     get_scrape = Last_Scrape.query.first()
     last_scrape = Last_Scrape_Schema.dump(get_scrape)
 
-    return jsonify({
-            'last_scrape': last_scrape
-        })
+    return jsonify(last_scrape)
 
 
 #Get results by user id
@@ -552,24 +550,26 @@ def add_alert():
 # If car matches an alert, then we will post that car as a result with the matching alert id
 @app.route("/result", methods=["POST"])
 def add_result():
-    year = request.json["year"]
-    make = request.json["make"]
-    model = request.json["model"]
-    trim = request.json["trim"]
-    miles = request.json["miles"]
-    price = request.json["price"]
-    link = request.json["link"]
-    vin = request.json["vin"]
-    liters = request.json["liters"]
-    cylinders = request.json["cylinders"]
-    drive = request.json["drive"]
-    doors = request.json["doors"]
-    fuel = request.json["fuel"]
-    seller = request.json["seller"]
+    # year = request.json["year"]
+    # make = request.json["make"]
+    # model = request.json["model"]
+    # trim = request.json["trim"]
+    # miles = request.json["miles"]
+    # price = request.json["price"]
+    # link = request.json["link"]
+    # vin = request.json["vin"]
+    # liters = request.json["liters"]
+    # cylinders = request.json["cylinders"]
+    # drive = request.json["drive"]
+    # doors = request.json["doors"]
+    # fuel = request.json["fuel"]
+    # seller = request.json["seller"]
     user_id = request.json["user_id"]
     alert_id = request.json["alert_id"]
+    car_id = request.json["car_id"]
 
-    new_result = Result(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id)
+    # new_result = Result(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id)
+    new_result = Result(car_id, user_id, alert_id)
 
     db.session.add(new_result)
     db.session.commit()
@@ -580,7 +580,8 @@ def add_result():
 
 @app.route("/set-last", methods=["POST"])
 def set_last():
-    db.session.add(request.json["vins"])
+    for i in request.json["vins"]:
+        db.session.add(i)
     db.session.commit()
 
     return request.json["vins"]
