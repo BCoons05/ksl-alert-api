@@ -105,10 +105,10 @@ class Last_Scrape(db.Model):
     """
 
     id = db.Column(db.Integer, primary_key = True)
-    vins = db.Column(db.PickleType)
+    vins = db.Column(db.String)
 
     def __init__(self, vins):
-        self.vins = vins
+        self.vin = vin
 
 
 
@@ -249,8 +249,9 @@ users_schema = UserSchema(many=True)
 
 class Last_Scrape_Schema(ma.Schema):
     class Meta:
-        fields = ("vins", )
-    vins = ma.List(ma.String)
+        fields = ("vin", )
+
+last_scrape_schema = Last_Scrape_Schema(many = True)
 
 
 @app.route("/users", methods=["GET"])
@@ -311,14 +312,14 @@ def get_cars():
     return jsonify(carResult)
 
 
-@app.route("/get-last", methods=["GET"])
+@app.route("/get-last-scrape", methods=["GET"])
 def get_last_scrape():
     """
     Gets the vins from the last scrape
 
     used to check for duplicate listings
     """
-    get_scrape = Last_Scrape.query.first()
+    get_scrape = Last_Scrape.query.all()
     last_scrape = Last_Scrape_Schema.dump(get_scrape)
 
     return jsonify(last_scrape)
@@ -580,11 +581,12 @@ def add_result():
 
 @app.route("/set-last", methods=["POST"])
 def set_last():
-    for i in request.json["vins"]:
-        db.session.add(i)
+    vin = request.json["vin"]
+    new_scrape = Last_Scrape(vin)
+    db.session.add(new_scrape)
     db.session.commit()
 
-    return request.json["vins"]
+    return last_scrape_schema.jsonify(new_scrape)
 
 
 # POST new car
