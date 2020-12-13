@@ -321,7 +321,7 @@ def get_last_scrape():
     used to check for duplicate listings
     """
     get_scrape = Last_Scrape.query.all()
-    last_scrape = Last_Scrape_Schema.dump(get_scrape)
+    last_scrape = last_scrape_schema.dump(get_scrape)
 
     return jsonify(last_scrape)
 
