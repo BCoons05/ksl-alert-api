@@ -103,9 +103,8 @@ class Last_Scrape(db.Model):
     scrape before adding the car to the db. Clear this table after each 
     use, then store the new scrape here.
     """
-
     id = db.Column(db.Integer, primary_key = True)
-    vins = db.Column(db.String)
+    vin = db.Column(db.String)
 
     def __init__(self, vin):
         self.vin = vin
