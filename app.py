@@ -107,7 +107,7 @@ class Last_Scrape(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     vins = db.Column(db.String)
 
-    def __init__(self, vins):
+    def __init__(self, vin):
         self.vin = vin
 
 
