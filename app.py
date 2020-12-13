@@ -251,7 +251,8 @@ class Last_Scrape_Schema(ma.Schema):
     class Meta:
         fields = ("vin", )
 
-last_scrape_schema = Last_Scrape_Schema(many = True)
+last_scrapes_schema = Last_Scrape_Schema(many = True)
+last_scrape_schema = Last_Scrape_Schema()
 
 
 @app.route("/users", methods=["GET"])
