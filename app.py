@@ -45,7 +45,7 @@ class User(db.Model):
     deactivated = db.Column(db.DateTime)
     results = db.relationship('Result', backref='user', lazy='joined')
     alerts = db.relationship('Alert', backref='user', lazy='joined')
-    created_on = db.Column(db.DateTime, nullable = False)
+    # created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, name, email, phone, preferred_contact, daPass):
         self.name = name
@@ -54,7 +54,7 @@ class User(db.Model):
         self.preferred_contact = preferred_contact
         self.daPass = daPass
         self.active = True
-        self.created_on = datetime.datetime.now().strftime("%c")
+        # self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -107,11 +107,11 @@ class Last_Scrape(db.Model):
     """
     id = db.Column(db.Integer, primary_key = True)
     vin = db.Column(db.String)
-    created_on = db.Column(db.DateTime, nullable = False)
+    # created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, vin):
         self.vin = vin
-        self.created_on = datetime.datetime.now().strftime("%c")
+        # self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -144,7 +144,7 @@ class Alert(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     results = db.relationship('Result', backref='alert', lazy='joined')
     active = db.Column(db.Boolean, nullable = False)
-    created_on = db.Column(db.DateTime, nullable = False)
+    # created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
         self.year_min = year_min
@@ -165,7 +165,7 @@ class Alert(db.Model):
         self.seller = seller
         self.user_id = user_id
         self.active = True
-        self.created_on = datetime.datetime.now().strftime("%c")
+        # self.created_on = datetime.datetime.now().strftime("%c")
 
 
 # This stores any cars that match an alert. related to user and alert.
@@ -239,7 +239,7 @@ results_schema = ResultSchema(many=True)
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "results", "created_on")
+        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "results")
     results = ma.Nested(results_schema)
 
 alert_schema = AlertSchema()
@@ -248,7 +248,7 @@ alerts_schema = AlertSchema(many=True)
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "email", "phone", "preferred_contact", "daPass", "alerts", "created_on")
+        fields = ("id", "name", "email", "phone", "preferred_contact", "daPass", "alerts")
     alerts = ma.Nested(alerts_schema)
 
 user_schema = UserSchema()
