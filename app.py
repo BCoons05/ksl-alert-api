@@ -185,12 +185,13 @@ class Result(db.Model):
     # doors = db.Column(db.Integer)
     # fuel = db.Column(db.String)
     # seller = db.Column(db.String, nullable = False)
-    car_id = db.Column(db.Integer, db.ForeignKey('cars.id'))
+    car = db.relationship('Car', backref='result', lazy='joined')
+    # car_id = db.Column(db.Integer, db.ForeignKey('cars.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
 
     # def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
-    def __init__(self, car_id, user_id, alert_id):
+    def __init__(self, user_id, alert_id):
         # self.year = year
         # self.make = make
         # self.model = model
@@ -205,7 +206,7 @@ class Result(db.Model):
         # self.doors = doors
         # self.fuel = fuel
         # self.seller = seller
-        self.car_id = car_id
+        # self.car_id = car_id
         self.user_id = user_id
         self.alert_id = alert_id
 
@@ -221,7 +222,7 @@ cars_schema = CarSchema(many=True)
 class ResultSchema(ma.Schema):
     class Meta:
         # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
-        fields = ("id", "car", "user_id", "alert_id")
+        fields = ("car", "user_id", "alert_id")
     car = ma.Nested(car_schema)
 
 result_schema = ResultSchema()
