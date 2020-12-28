@@ -75,7 +75,7 @@ class Car(db.Model):
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
     seller = db.Column(db.String, nullable = False)
-    created_on = db.Column(db.DateTime, nullable = False)
+    # created_on = db.Column(db.DateTime, nullable = False)
 
 
     def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller):
@@ -93,7 +93,7 @@ class Car(db.Model):
         self.doors = doors
         self.fuel = fuel
         self.seller = seller
-        self.created_on = datetime.datetime.now().strftime("%c")
+        # self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -196,7 +196,7 @@ class Result(db.Model):
     car_id = db.Column(db.Integer, db.ForeignKey('cars.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
-    created_on = db.Column(db.DateTime, nullable = False)
+    # created_on = db.Column(db.DateTime, nullable = False)
 
     # def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
     def __init__(self, car_id, user_id, alert_id):
@@ -217,7 +217,7 @@ class Result(db.Model):
         self.car_id = car_id
         self.user_id = user_id
         self.alert_id = alert_id
-        self.created_on = datetime.datetime.now().strftime("%c")
+        # self.created_on = datetime.datetime.now().strftime("%c")
 
 
 class CarSchema(ma.Schema):
@@ -231,7 +231,7 @@ cars_schema = CarSchema(many=True)
 class ResultSchema(ma.Schema):
     class Meta:
         # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
-        fields = ("car", "car_id", "user_id", "alert_id", "created_on")
+        fields = ("car", "car_id", "user_id", "alert_id")
     car = ma.Nested(car_schema)
 
 result_schema = ResultSchema()
