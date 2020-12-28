@@ -45,7 +45,7 @@ class User(db.Model):
     deactivated = db.Column(db.DateTime)
     results = db.relationship('Result', backref='user', lazy='joined')
     alerts = db.relationship('Alert', backref='user', lazy='joined')
-    # created_on = db.Column(db.DateTime, nullable = False)
+    created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, name, email, phone, preferred_contact, daPass):
         self.name = name
@@ -54,7 +54,7 @@ class User(db.Model):
         self.preferred_contact = preferred_contact
         self.daPass = daPass
         self.active = True
-        # self.created_on = datetime.datetime.now().strftime("%c")
+        self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -75,7 +75,7 @@ class Car(db.Model):
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
     seller = db.Column(db.String, nullable = False)
-    # created_on = db.Column(db.DateTime, nullable = False)
+    created_on = db.Column(db.DateTime, nullable = False)
 
 
     def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller):
@@ -93,7 +93,7 @@ class Car(db.Model):
         self.doors = doors
         self.fuel = fuel
         self.seller = seller
-        # self.created_on = datetime.datetime.now().strftime("%c")
+        self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -107,11 +107,11 @@ class Last_Scrape(db.Model):
     """
     id = db.Column(db.Integer, primary_key = True)
     vin = db.Column(db.String)
-    # created_on = db.Column(db.DateTime, nullable = False)
+    created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, vin):
         self.vin = vin
-        # self.created_on = datetime.datetime.now().strftime("%c")
+        self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -143,8 +143,8 @@ class Alert(db.Model):
     seller = db.Column(db.String, nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     results = db.relationship('Result', backref='alert', lazy='joined')
-    # active = db.Column(db.Boolean, nullable = False)
-    # created_on = db.Column(db.DateTime, nullable = False)
+    active = db.Column(db.Boolean, nullable = False)
+    created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
         self.year_min = year_min
@@ -164,8 +164,8 @@ class Alert(db.Model):
         self.fuel = fuel
         self.seller = seller
         self.user_id = user_id
-        # self.active = True
-        # self.created_on = datetime.datetime.now().strftime("%c")
+        self.active = True
+        self.created_on = datetime.datetime.now().strftime("%c")
 
 
 # This stores any cars that match an alert. related to user and alert.
@@ -178,51 +178,22 @@ class Result(db.Model):
     """
     __tablename__ = "results"
     id = db.Column(db.Integer, primary_key = True)
-    # year = db.Column(db.Integer)
-    # make = db.Column(db.String)
-    # model = db.Column(db.String)
-    # trim = db.Column(db.String)
-    # miles = db.Column(db.Integer)
-    # price = db.Column(db.Integer)
-    # link = db.Column(db.String)
-    # vin = db.Column(db.String, nullable = False)
-    # liters = db.Column(db.String)
-    # cylinders = db.Column(db.Integer, nullable = False)
-    # drive = db.Column(db.String)
-    # doors = db.Column(db.Integer)
-    # fuel = db.Column(db.String)
-    # seller = db.Column(db.String, nullable = False)
     car = db.relationship('Car', backref='result', lazy='joined')
     car_id = db.Column(db.Integer, db.ForeignKey('cars.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
-    # created_on = db.Column(db.DateTime, nullable = False)
+    created_on = db.Column(db.DateTime, nullable = False)
 
-    # def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id):
     def __init__(self, car_id, user_id, alert_id):
-        # self.year = year
-        # self.make = make
-        # self.model = model
-        # self.trim = trim
-        # self.miles = miles
-        # self.price = price
-        # self.link = link
-        # self.vin = vin
-        # self.liters = liters
-        # self.cylinders = cylinders
-        # self.drive = drive
-        # self.doors = doors
-        # self.fuel = fuel
-        # self.seller = seller
         self.car_id = car_id
         self.user_id = user_id
         self.alert_id = alert_id
-        # self.created_on = datetime.datetime.now().strftime("%c")
+        self.created_on = datetime.datetime.now().strftime("%c")
 
 
 class CarSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "created_on")
 
 car_schema = CarSchema()
 cars_schema = CarSchema(many=True)
@@ -230,8 +201,7 @@ cars_schema = CarSchema(many=True)
 
 class ResultSchema(ma.Schema):
     class Meta:
-        # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
-        fields = ("car", "car_id", "user_id", "alert_id")
+        fields = ("car", "car_id", "user_id", "alert_id", "created_on")
     car = ma.Nested(car_schema)
 
 result_schema = ResultSchema()
@@ -239,7 +209,7 @@ results_schema = ResultSchema(many=True)
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "results")
+        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "results", "created_on")
     results = ma.Nested(results_schema)
 
 alert_schema = AlertSchema()
@@ -248,7 +218,7 @@ alerts_schema = AlertSchema(many=True)
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ("id", "name", "email", "phone", "preferred_contact", "daPass", "alerts")
+        fields = ("id", "name", "email", "phone", "preferred_contact", "daPass", "alerts", "created_on")
     alerts = ma.Nested(alerts_schema)
 
 user_schema = UserSchema()
