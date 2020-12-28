@@ -220,7 +220,7 @@ class Result(db.Model):
         self.created_on = datetime.datetime.now().strftime("%c")
 
     def get_cars_by_id():
-        get_car = Car.query.filter(Car.id == car_id).all()
+        get_car = Car.query.filter(Car.id == self.car_id).all()
         carResult = car_schema.dump(all_results)
 
         return jsonify(carResult)
