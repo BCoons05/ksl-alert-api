@@ -219,6 +219,12 @@ class Result(db.Model):
         self.alert_id = alert_id
         self.created_on = datetime.datetime.now().strftime("%c")
 
+    def get_cars_by_id():
+        get_car = Car.query.filter(Car.id == car_id).all()
+        carResult = car_schema.dump(all_results)
+
+        return jsonify(carResult)
+
 
 class CarSchema(ma.Schema):
     class Meta:
@@ -233,14 +239,8 @@ class ResultSchema(ma.Schema):
         # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
         fields = ("car", "user_id", "alert_id", "created_on")
     car = ma.Nested(
-        get_cars_by_id(car_id)
+        Result.get_cars_by_id()
     )
-
-    def get_cars_by_id(id):
-        all_results = Result.query.filter(Result.car_id == id).all()
-        carResult = car_schema.dump(all_results)
-
-        return jsonify(carResult)
 
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
