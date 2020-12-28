@@ -236,17 +236,14 @@ class ResultSchema(ma.Schema):
         get_cars_by_id(car_id)
     )
 
+    def get_cars_by_id(id):
+        all_results = Result.query.filter(Result.car_id == id).all()
+        carResult = car_schema.dump(all_results)
+
+        return jsonify(carResult)
+
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
-
-def get_cars_by_id(id):
-    """
-    Gets all cars for a given id
-    """
-    all_results = Result.query.filter(Result.car_id == id).all()
-    carResult = car_schema.dump(all_results)
-
-    return jsonify(carResult)
 
 class AlertSchema(ma.Schema):
     class Meta:
