@@ -192,7 +192,7 @@ class Result(db.Model):
     # doors = db.Column(db.Integer)
     # fuel = db.Column(db.String)
     # seller = db.Column(db.String, nullable = False)
-    # car = db.relationship('Car', backref='result', lazy='joined')
+    car = db.relationship('Car', backref='result', lazy='joined')
     car_id = db.Column(db.Integer, db.ForeignKey('cars.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     alert_id = db.Column(db.Integer, db.ForeignKey('alerts.id'))
@@ -219,12 +219,6 @@ class Result(db.Model):
         self.alert_id = alert_id
         self.created_on = datetime.datetime.now().strftime("%c")
 
-    def get_cars_by_id():
-        get_car = Car.query.filter(Car.id == self.car_id).all()
-        carResult = car_schema.dump(all_results)
-
-        return jsonify(carResult)
-
 
 class CarSchema(ma.Schema):
     class Meta:
@@ -237,10 +231,8 @@ cars_schema = CarSchema(many=True)
 class ResultSchema(ma.Schema):
     class Meta:
         # fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "alert_id")
-        fields = ("car", "user_id", "alert_id", "created_on")
-    car = ma.Nested(
-        Result.get_cars_by_id()
-    )
+        fields = ("car", "car_id", "user_id", "alert_id", "created_on")
+    car = ma.Nested(car_schema)
 
 result_schema = ResultSchema()
 results_schema = ResultSchema(many=True)
@@ -312,6 +304,7 @@ def get_results():
     Gets all results for all users
     """
     all_results = Result.query.all()
+
     resultResult = results_schema.dump(all_results)
 
     return jsonify(resultResult)
