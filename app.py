@@ -143,7 +143,7 @@ class Alert(db.Model):
     seller = db.Column(db.String, nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     results = db.relationship('Result', backref='alert', lazy='joined')
-    active = db.Column(db.Boolean, nullable = False)
+    # active = db.Column(db.Boolean, nullable = False)
     # created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
@@ -164,7 +164,7 @@ class Alert(db.Model):
         self.fuel = fuel
         self.seller = seller
         self.user_id = user_id
-        self.active = True
+        # self.active = True
         # self.created_on = datetime.datetime.now().strftime("%c")
 
 
