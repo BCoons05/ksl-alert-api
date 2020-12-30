@@ -518,12 +518,12 @@ def add_result():
 
 
 @app.route("/set-last", methods=["POST"])
-"""
-This is used to store the vins from the last scrape.
-Need this to stop from posting duplicate cars.
-Post every vin here, because we will clear this table after every GET
-"""
 def set_last():
+    """
+    This is used to store the vins from the last scrape.
+    Need this to stop from posting duplicate cars.
+    Post every vin here, because we will clear this table after every GET
+    """
     vin = request.json["vin"]
     new_scrape = Last_Scrape(vin)
     db.session.add(new_scrape)
