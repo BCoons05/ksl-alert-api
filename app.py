@@ -59,6 +59,11 @@ class User(db.Model):
 
 
 class Car(db.Model):
+    """
+    Class for a car
+
+    Used to store every car scraped
+    """
     __tablename__ = "cars"
     id = db.Column(db.Integer, primary_key = True)
     year = db.Column(db.Integer, nullable = False)
@@ -98,7 +103,8 @@ class Car(db.Model):
 
 
 class Last_Scrape(db.Model):
-    """Stores the car vins from the previous scrape.
+    """
+    Stores the car vins from the previous scrape.
 
     This is used like redis, to store the cars that we scraped last.
     We will check this table to see if we have a duplicate in the new
@@ -117,7 +123,8 @@ class Last_Scrape(db.Model):
 
 # TODO Do I need price and miles min and max? We are going to use the averages or ML for price and miles ...
 class Alert(db.Model):
-    """Class for alerts
+    """
+    Class for alerts
 
     used to create a new alert object to store in the db.
     Needs a user_id to the user that created the alert.
@@ -170,7 +177,8 @@ class Alert(db.Model):
 
 # This stores any cars that match an alert. related to user and alert.
 class Result(db.Model):
-    """Class for a result object
+    """
+    Class for a result object
 
     Used to add a result to db. Holds the user id, alert id, and car id.
     User id is the user that created the alert. Alert id is the alert that 
@@ -307,7 +315,6 @@ def get_last_scrape():
     return jsonify(last_scrape)
 
 
-#Get results by user id
 @app.route("/user_results/<int:id>", methods=["GET"])
 def get_results_by_user_id(id):
     """
@@ -319,7 +326,6 @@ def get_results_by_user_id(id):
     return jsonify(resultResult)
 
 
-#Get results by alert id
 @app.route("/alert_results/<int:id>", methods=["GET"])
 def get_results_by_alert_id(id):
     """
@@ -331,53 +337,59 @@ def get_results_by_alert_id(id):
     return jsonify(resultResult)
 
 
-#Search all alert Results
-# This will get all results that match a search query. May not use it. 
 # TODO Make this a POST
-@app.route("/search/results/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
-def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_results = db.session.query(Result)\
-        .filter(Result.make.like(make),\
-        Result.model.like(model),\
-        Result.year >= year_min,\
-        Result.year <= year_max,\
-        Result.miles >= miles_min,\
-        Result.miles <= miles_max,\
-        Result.price >= price_min,\
-        Result.price <= price_max).all()
+@app.route("/search/all-cars", methods=["POST"])
+def search_cars():
+    """
+    Searches all cars in the db using given query. Need this for the Chrome extension
+    """
+    default = 'any'
+    make = request.json["make"]
+    model = request.json["model"]
+    year_min = request.json["year_min"] or request.json["year"]
+    year_max = request.json["year_max"] or request.json["year"]
+    miles_min = request.json["miles_min"] or 1
+    miles_max = request.json["miles_max"] or 999999
+    price_min = request.json["price_min"] or 1
+    price_max = request.json["price_max"] or 9999999
+    trim = request.json["trim"] or default
+    liters = request.json["liters"] or default
+    cylinders = request.json["cylinders"] or 0
+    drive = request.json["drive"] or default
+    doors = request.json["doors"] or 0
+    fuel = request.json["fuel"] or default
+    seller = request.json["seller"] or default
 
-    searchResult = results_schema.dump(search_results)
+    search_cars = db.session.query(Car)\
+        .filter(
+        Car.make.lower() == make.lower(),\
+        Car.model.lower() == model.lower(),\
+        Car.year_min <= year,\
+        Car.year_max >= year,\
+        Car.miles_min <= miles,\
+        Car.miles_max >= miles,\
+        Car.price_min <= price,\
+        Car.price_max >= price,\
+        or_(Car.trim == trim, trim == default),\
+        or_(Car.liters == liters, liters == default),\
+        or_(cylinders == 0, cylinders == Car.cylinders),\
+        or_(drive == default, drive == Car.drive),\
+        or_(doors == 0, doors == Car.doors),\
+        or_(fuel == default, fuel == Car.fuel),\
+        or_(seller == default, seller == Car.seller)
+        ).all()
 
-    return jsonify(searchResult)
-
-
-#Search All Cars
-# Searches all cars in the db using given query. Need this for the Chrome extension
-# Make and Model need to be titleized currently.
-# TODO Make this a POST
-@app.route("/search/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
-def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
-    search_cars = db.session.query(Car).filter(\
-    # search_cars = Car.query.filter(\
-    Car.make.like(make),\
-    Car.model.like(model),\
-    Car.year >= year_min,\
-    Car.year <= year_max,\
-    Car.miles >= miles_min,\
-    Car.miles <= miles_max,\
-    Car.price >= price_min,\
-    Car.price <= price_max
-    ).all()
-
-    searchCars = cars_schema.dump(search_cars)
+    searchCars = cars_schema.dump(search_Cars)
 
     return jsonify(searchCars)
 
 
-#Get average price
-# TODO Make this a POST
+# TODO Make this a POST?
 @app.route("/cars/price/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
+    """
+    Get average price for given make, model, and year range
+    """
     average_price = db.session.query(func.avg(Car.price).label('average'))\
         .filter(Car.make.like(make),\
         Car.model.like(model),\
@@ -392,9 +404,12 @@ def get_average_price(make, model, year_min, year_max):
         return "not enough data"
 
 
-#Get average miles 
+# TODO make this a post?
 @app.route("/cars/miles/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
+    """
+    Get average miles for given make, model, and year range
+    """
     average_miles = db.session.query(func.avg(Car.miles).label('average'))\
         .filter(
         Car.make.like(make),\
@@ -410,10 +425,13 @@ def get_average_miles(make, model, year_min, year_max):
         return "not enough data"
 
 
-# POST Search Alerts
-# When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
 @app.route("/alert/search", methods=["POST"])
 def check_alerts():
+    """
+    POST Search Alerts
+    When we scrape KSL, before we post a result, we will check for a matching alert here. 
+    If there is a match then create a result and send a message
+    """
     default = 'any'
     year = request.json["year"]
     make = request.json["make"]
@@ -454,9 +472,11 @@ def check_alerts():
     return jsonify(searchAlerts)
 
 
-# POST new user
 @app.route("/user", methods=["POST"])
 def add_user():
+    """
+    POST new user
+    """
     name = request.json["name"]
     email = request.json["email"]
     phone = request.json["phone"]
@@ -471,9 +491,11 @@ def add_user():
     return user_schema.jsonify(new_user)
 
 
-# POST new alert
 @app.route("/alert", methods=["POST"])
 def add_alert():
+    """
+    POST new alert
+    """
     year_min = request.json["year_min"]
     year_max = request.json["year_max"]
     make = request.json["make"]
@@ -500,10 +522,13 @@ def add_alert():
     return alert_schema.jsonify(new_alert)
 
 
-# POST new result
-# If car matches an alert, then we will post that car as a result with the matching alert id
+
 @app.route("/result", methods=["POST"])
 def add_result():
+    """
+    POST new result
+    If car matches an alert, then we will post that car as a result with the matching alert id
+    """
     user_id = request.json["user_id"]
     alert_id = request.json["alert_id"]
     car_id = request.json["car_id"]
@@ -532,10 +557,12 @@ def set_last():
     return last_scrape_schema.jsonify(new_scrape)
 
 
-# POST new car
-# to post all cars scraped from ksl
 @app.route("/car", methods=["POST"])
 def add_car():
+    """
+    POST new car
+    to post all cars scraped from ksl
+    """
     year = request.json["year"]
     make = request.json["make"]
     model = request.json["model"]
@@ -572,44 +599,52 @@ def add_car():
 #     return car.jsonify(alert)
 
 
-# DELETE alert
 @app.route("/alert/<id>", methods=["DELETE"])
 def delete_alert(id):
+    """
+    DELETE alert with given id
+    """
     alert = Alert.query.get(id)
     db.session.delete(alert)
     db.session.commit()
 
-    return jsonify("Alert Deleted and stuff")
+    return jsonify(f"Alert {alert.id} deleted")
 
 
-# DELETE result
 @app.route("/result/<id>", methods=["DELETE"])
 def delete_result(id):
+    """
+    DELETE result by given id
+    """
     result = Result.query.get(id)
     db.session.delete(result)
     db.session.commit()
 
-    return jsonify("Result Deleted and stuff")
+    return jsonify(f"Result {result.id} deleted")
 
 
-# DELETE car
 @app.route("/car/<id>", methods=["DELETE"])
-def delete_resultt(id):
+def delete_result(id):
+    """
+    DELETE car by given id
+    """
     car = Car.query.get(id)
     db.session.delete(car)
     db.session.commit()
 
-    return jsonify("Car Deleted and stuff")
+    return jsonify(f"Car {car.id} deleted")
 
 
-# DELETE user
 @app.route("/user/<id>", methods=["DELETE"])
 def delete_user(id):
+    """
+    DELETE user by given id
+    """
     user = User.query.get(id)
     db.session.delete(user)
     db.session.commit()
 
-    return jsonify("User Deleted and stuff")
+    return jsonify(f"User {user.id} deleted")
 
 
 if __name__ == "__main__":
