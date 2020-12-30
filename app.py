@@ -296,11 +296,13 @@ def get_cars():
 def get_last_scrape():
     """
     Gets the vins from the last scrape
-
     used to check for duplicate listings
+    Clears table after each get request
     """
     get_scrape = Last_Scrape.query.all()
     last_scrape = last_scrapes_schema.dump(get_scrape)
+    db.session.query(Last_Scrape).delete()
+    db.session.commit()
 
     return jsonify(last_scrape)
 
@@ -329,20 +331,9 @@ def get_results_by_alert_id(id):
     return jsonify(resultResult)
 
 
-# #Get all alerts and results for a user
-# @app.route("/user/alerts/results", methods=["POST"])
-# def get_user_alerts_and_results():
-#     username = request.json["email"]
-#     daPass = request.json["daPass"]
-
-#     user_results = db.session.query(User)\
-#         .options(lazyload(User.alerts).lazyload(User.results)).all()
-
-#     return user_results
-
-
 #Search all alert Results
 # This will get all results that match a search query. May not use it. 
+# TODO Make this a POST
 @app.route("/search/results/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
 def get_search_results(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_results = db.session.query(Result)\
@@ -363,6 +354,7 @@ def get_search_results(make, model, year_min, year_max, miles_min, miles_max, pr
 #Search All Cars
 # Searches all cars in the db using given query. Need this for the Chrome extension
 # Make and Model need to be titleized currently.
+# TODO Make this a POST
 @app.route("/search/<make>-<model>-<int:year_min>-<int:year_max>-<int:miles_min>-<int:miles_max>-<int:price_min>-<int:price_max>", methods=["GET"])
 def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price_min, price_max):
     search_cars = db.session.query(Car).filter(\
@@ -383,6 +375,7 @@ def get_search_cars(make, model, year_min, year_max, miles_min, miles_max, price
 
 
 #Get average price
+# TODO Make this a POST
 @app.route("/cars/price/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     average_price = db.session.query(func.avg(Car.price).label('average'))\
@@ -415,25 +408,6 @@ def get_average_miles(make, model, year_min, year_max):
         })
     else: 
         return "not enough data"
-
-
-#Search Alerts
-# When we scrape KSL, before we post a result, we will check for a matching alert here. If there is a match then create a result and send a message
-# @app.route("/alerts/<make>-<model>-<int:year>-<int:miles>-<int:price>", methods=["GET"])
-# def get_matching_alerts(make, model, year, miles, price):
-#     search_alerts = db.session.query(Alert)\
-#         .filter(Alert.make.like(make),\
-#         Alert.model.like(model),\
-#         Alert.year_min <= year,\
-#         Alert.year_max >= year,\
-#         Alert.miles_min <= miles,\
-#         Alert.miles_max >= miles,\
-#         Alert.price_min <= price,\
-#         Alert.price_max >= price
-#         ).all()
-#     searchAlerts = alerts_schema.dump(search_alerts)
-
-#     return jsonify(searchAlerts)
 
 
 # POST Search Alerts
@@ -494,7 +468,6 @@ def add_user():
     db.session.add(new_user)
     db.session.commit()
 
-    # user = User.query.get(new_user.name)
     return user_schema.jsonify(new_user)
 
 
@@ -524,7 +497,6 @@ def add_alert():
     db.session.add(new_alert)
     db.session.commit()
 
-    # alert = Alert.query.get(new_alert.user_id)
     return alert_schema.jsonify(new_alert)
 
 
@@ -532,25 +504,10 @@ def add_alert():
 # If car matches an alert, then we will post that car as a result with the matching alert id
 @app.route("/result", methods=["POST"])
 def add_result():
-    # year = request.json["year"]
-    # make = request.json["make"]
-    # model = request.json["model"]
-    # trim = request.json["trim"]
-    # miles = request.json["miles"]
-    # price = request.json["price"]
-    # link = request.json["link"]
-    # vin = request.json["vin"]
-    # liters = request.json["liters"]
-    # cylinders = request.json["cylinders"]
-    # drive = request.json["drive"]
-    # doors = request.json["doors"]
-    # fuel = request.json["fuel"]
-    # seller = request.json["seller"]
     user_id = request.json["user_id"]
     alert_id = request.json["alert_id"]
     car_id = request.json["car_id"]
 
-    # new_result = Result(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller, user_id, alert_id)
     new_result = Result(car_id, user_id, alert_id)
 
     db.session.add(new_result)
@@ -561,6 +518,11 @@ def add_result():
 
 
 @app.route("/set-last", methods=["POST"])
+"""
+This is used to store the vins from the last scrape.
+Need this to stop from posting duplicate cars.
+Post every vin here, because we will clear this table after every GET
+"""
 def set_last():
     vin = request.json["vin"]
     new_scrape = Last_Scrape(vin)
@@ -597,7 +559,7 @@ def add_car():
     return alert_schema.jsonify(new_car)
 
 
-# PUT/PATCH by ID -- TODO this will be to update an alert. Will need an update for user info too
+# PUT/PATCH by ID -- TODO need routes for user and alert
 # @app.route("/alert/<id>", methods=["PATCH"])
 # def delete_alert(id):
 #     alert = Alert.query.get(id)
