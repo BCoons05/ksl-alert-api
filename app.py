@@ -26,7 +26,7 @@ db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
 
-
+# TODO add hash or other security
 class User(db.Model):
     """Class for new user.
 
@@ -57,7 +57,7 @@ class User(db.Model):
         self.created_on = datetime.datetime.now().strftime("%c")
 
 
-
+# TODO add title to Car
 class Car(db.Model):
     """
     Class for a car
@@ -80,10 +80,11 @@ class Car(db.Model):
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
     seller = db.Column(db.String, nullable = False)
+    title = db.Column(sb.String)
     created_on = db.Column(db.DateTime, nullable = False)
 
 
-    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller):
+    def __init__(self, year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller):
         self.year = year
         self.make = make
         self.model = model
@@ -97,6 +98,7 @@ class Car(db.Model):
         self.drive = drive
         self.doors = doors
         self.fuel = fuel
+        self.title = title
         self.seller = seller
         self.created_on = datetime.datetime.now().strftime("%c")
 
@@ -113,11 +115,9 @@ class Last_Scrape(db.Model):
     """
     id = db.Column(db.Integer, primary_key = True)
     vin = db.Column(db.String)
-    created_on = db.Column(db.DateTime, nullable = False)
 
     def __init__(self, vin):
         self.vin = vin
-        self.created_on = datetime.datetime.now().strftime("%c")
 
 
 
@@ -201,7 +201,7 @@ class Result(db.Model):
 
 class CarSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "seller", "created_on")
+        fields = ("id", "year", "make", "model", "trim", "miles", "price", "link", "vin", "liters", "cylinders", "drive", "doors", "fuel", "title", "seller", "created_on")
 
 car_schema = CarSchema()
 cars_schema = CarSchema(many=True)
@@ -337,7 +337,6 @@ def get_results_by_alert_id(id):
     return jsonify(resultResult)
 
 
-# TODO Make this a POST
 @app.route("/search/all-cars", methods=["POST"])
 def search_cars():
     """
@@ -576,9 +575,10 @@ def add_car():
     drive = request.json["drive"]
     doors = request.json["doors"]
     fuel = request.json["fuel"]
+    title = request.json["title"]
     seller = request.json["seller"]
 
-    new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, seller)
+    new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
 
     db.session.add(new_car)
     db.session.commit()
