@@ -79,8 +79,8 @@ class Car(db.Model):
     drive = db.Column(db.String)
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
-    seller = db.Column(db.String, nullable = False)
     title = db.Column(db.String)
+    seller = db.Column(db.String, nullable = False)
     created_on = db.Column(db.DateTime, nullable = False)
 
 
