@@ -147,13 +147,14 @@ class Alert(db.Model):
     drive = db.Column(db.String)
     doors = db.Column(db.Integer)
     fuel = db.Column(db.String)
+    title = db.Column(db.String)
     seller = db.Column(db.String, nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     results = db.relationship('Result', backref='alert', lazy='joined')
     active = db.Column(db.Boolean, nullable = False)
     created_on = db.Column(db.DateTime, nullable = False)
 
-    def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id):
+    def __init__(self, year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, title, seller, user_id):
         self.year_min = year_min
         self.year_max = year_max
         self.make = make
@@ -169,6 +170,7 @@ class Alert(db.Model):
         self.drive = drive
         self.doors = doors
         self.fuel = fuel
+        self.title = title
         self.seller = seller
         self.user_id = user_id
         self.active = True
@@ -217,7 +219,7 @@ results_schema = ResultSchema(many=True)
 
 class AlertSchema(ma.Schema):
     class Meta:
-        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "seller", "user_id", "results", "created_on")
+        fields = ("id", "year_min", "year_max", "make", "model", "trim", "price_min", "price_max", "miles_min", "miles_max", "deviation", "liters", "cylinders", "drive", "doors", "fuel", "title", "seller", "user_id", "results", "created_on")
     results = ma.Nested(results_schema)
 
 alert_schema = AlertSchema()
@@ -357,6 +359,7 @@ def search_cars():
     drive = request.json["drive"] or default
     doors = request.json["doors"] or 0
     fuel = request.json["fuel"] or default
+    title = request.json["title"] or default
     seller = request.json["seller"] or default
 
     search_cars = db.session.query(Car)\
@@ -375,6 +378,7 @@ def search_cars():
         or_(drive == default, drive == Car.drive),\
         or_(doors == 0, doors == Car.doors),\
         or_(fuel == default, fuel == Car.fuel),\
+        or_(title == default, title == Car.title),\
         or_(seller == default, seller == Car.seller)
         ).all()
 
@@ -445,6 +449,7 @@ def check_alerts():
     drive = request.json["drive"]
     doors = request.json["doors"]
     fuel = request.json["fuel"]
+    title = request.json["title"]
     seller = request.json["seller"]
 
     search_alerts = db.session.query(Alert)\
@@ -463,6 +468,7 @@ def check_alerts():
         or_(Alert.drive == default, drive == Alert.drive),\
         or_(Alert.doors == 0, doors == Alert.doors),\
         or_(Alert.fuel == default, fuel == Alert.fuel),\
+        or_(Alert.title == default, title == Alert.title),\
         or_(Alert.seller == default, seller == Alert.seller)
         ).all()
 
@@ -510,10 +516,11 @@ def add_alert():
     drive = request.json["drive"]
     doors = request.json["doors"]
     fuel = request.json["fuel"]
+    title = request.json["title"]
     seller = request.json["seller"]
     user_id = request.json["user_id"]
 
-    new_alert = Alert(year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, seller, user_id)
+    new_alert = Alert(year_min, year_max, make, model, trim, price_min, price_max, miles_min, miles_max, deviation, liters, cylinders, drive, doors, fuel, title, seller, user_id)
 
     db.session.add(new_alert)
     db.session.commit()
