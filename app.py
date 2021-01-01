@@ -624,7 +624,7 @@ def delete_result(id):
 
 
 @app.route("/car/<id>", methods=["DELETE"])
-def delete_result(id):
+def delete_car(id):
     """
     DELETE car by given id
     """
