@@ -453,8 +453,6 @@ def check_alerts():
     trim = request.json["trim"]
     miles = request.json["miles"]
     price = request.json["price"]
-    link = request.json["link"]
-    vin = request.json["vin"]
     liters = request.json["liters"]
     cylinders = request.json["cylinders"]
     drive = request.json["drive"]
