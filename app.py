@@ -254,6 +254,17 @@ def get_users():
     return jsonify(usersResult)
 
 
+@app.route("/users/<int:id>", methods=["GET"])
+def get_user_by_id(id):
+    """
+    Gets all users that match the given id
+    """
+    all_users = User.query.filter(User.id == id).all()
+    userResult = users_schema.dump(all_users)
+
+    return jsonify(userResult)
+
+
 @app.route("/alerts", methods=["GET"])
 def get_alerts():
     """
