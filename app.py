@@ -492,9 +492,11 @@ def check_alerts():
             add_result_from_diff_route(result)
 
             user = get_user_by_id(alert.user_id)
-            # TODO This is whee we call the twilio stuff using user.phone
+            # TODO This is where we call the twilio stuff using user.phone
+            print('Deal found. Texting {user.phone}')
 
     return jsonify(searchAlerts)
+    # return 'Deal found. Texting {user.phone}'
 
 
 @app.route("/user", methods=["POST"])
