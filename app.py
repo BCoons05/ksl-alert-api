@@ -483,6 +483,17 @@ def check_alerts():
 
     searchAlerts = alerts_schema.dump(search_alerts)
 
+    if(len(searchAlerts) > 0):
+        new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
+        added_car = add_car_from_search_route(new_car)
+
+        for alert in searchAlerts:
+            new_result = Result(added_car.id, alert.user_id, alert.alert_id)
+            add_result_from_diff_route(result)
+
+            user = get_user_by_id(alert.user_id)
+            # TODO This is whee we call the twilio stuff using user.phone
+
     return jsonify(searchAlerts)
 
 
@@ -556,6 +567,13 @@ def add_result():
     return alert_schema.jsonify(new_result)
 
 
+def add_result_from_diff_route(result):
+    db.session.add(new_result)
+    db.session.commit()
+
+    return alert_schema.jsonify(new_result)
+
+
 
 @app.route("/set-last", methods=["POST"])
 def set_last():
@@ -599,7 +617,14 @@ def add_car():
     db.session.add(new_car)
     db.session.commit()
 
-    return alert_schema.jsonify(new_car)
+    return car_schema.jsonify(new_car)
+
+
+def add_car_from_search_route(car):
+    db.session.add(car)
+    db.session.commit()
+
+    return car_schema.jsonify(car)
 
 
 # PUT/PATCH by ID -- TODO need routes for user and alert
