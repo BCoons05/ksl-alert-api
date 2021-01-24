@@ -377,12 +377,12 @@ def search_cars():
         .filter(
         Car.make.lower() == make.lower(),\
         Car.model.lower() == model.lower(),\
-        Car.year_min <= year,\
-        Car.year_max >= year,\
-        Car.miles_min <= miles,\
-        Car.miles_max >= miles,\
-        Car.price_min <= price,\
-        Car.price_max >= price,\
+        year_min <= Car.year,\
+        year_max >= Car.year,\
+        miles_min <= Car.miles,\
+        miles_max >= Car.miles,\
+        price_min <= Car.price,\
+        price_max >= Car.price,\
         or_(Car.trim == trim, trim == default),\
         or_(Car.liters == liters, liters == default),\
         or_(cylinders == 0, cylinders == Car.cylinders),\
@@ -393,12 +393,12 @@ def search_cars():
         or_(seller == default, seller == Car.seller)
         ).all()
 
-    searchCars = cars_schema.dump(search_Cars)
+    searchCars = cars_schema.dump(search_cars)
 
     return jsonify(searchCars)
 
 
-# TODO Make this a POST?
+# TODO Make this a POST? Also need to incorporate trim, drive, transmission, etc
 @app.route("/cars/price/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_price(make, model, year_min, year_max):
     """
@@ -418,7 +418,7 @@ def get_average_price(make, model, year_min, year_max):
         return "not enough data"
 
 
-# TODO make this a post?
+# TODO make this a post? Also need to incorporate trim, drive, transmission, etc
 @app.route("/cars/miles/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
 def get_average_miles(make, model, year_min, year_max):
     """
@@ -460,6 +460,8 @@ def check_alerts():
     fuel = request.json["fuel"]
     title = request.json["title"]
     seller = request.json["seller"]
+    link = request.json["link"]
+    vin = request.json["vin"]
 
     search_alerts = db.session.query(Alert)\
         .filter(Alert.active == True,\
@@ -481,22 +483,22 @@ def check_alerts():
         or_(Alert.seller == default, seller == Alert.seller)
         ).all()
 
-    searchAlerts = alerts_schema.dump(search_alerts)
+    searchAlerts = jsonify(alerts_schema.dump(search_alerts))
 
     if(len(searchAlerts) > 0):
         new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
-        added_car = add_car_from_search_route(new_car)
+        added_car = add_car_from_search_route(new_car)[0]
 
         for alert in searchAlerts:
             new_result = Result(added_car.id, alert.user_id, alert.alert_id)
-            add_result_from_diff_route(result)
+            add_result_from_diff_route(new_result)
 
-            user = get_user_by_id(alert.user_id)
+            user = get_user_by_id(alert.user_id)[0]
             # TODO This is where we call the twilio stuff using user.phone
             print('Deal found. Texting {user.phone}')
 
-    return jsonify(searchAlerts)
-    # return 'Deal found. Texting {user.phone}'
+    # return jsonify(searchAlerts)
+    return 'Deal found. Texting {user.phone}'
 
 
 @app.route("/user", methods=["POST"])
