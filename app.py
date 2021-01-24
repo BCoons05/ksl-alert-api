@@ -483,7 +483,7 @@ def check_alerts():
         or_(Alert.seller == default, seller == Alert.seller)
         ).all()
 
-    searchAlerts = jsonify(alerts_schema.dump(search_alerts))
+    searchAlerts = alerts_schema.dump(search_alerts)
 
     return len(searchAlerts)
 
