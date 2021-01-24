@@ -259,8 +259,8 @@ def get_user_by_id(id):
     """
     Gets all users that match the given id
     """
-    all_users = User.query.filter(User.id == id).first()
-    userResult = users_schema.jsonify(all_users)
+    user = User.query.filter(User.id == id).first()
+    userResult = user_schema.jsonify(user)
 
     return userResult
 
