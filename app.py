@@ -498,7 +498,7 @@ def check_alerts():
 
     # return jsonify(searchAlerts)
     # 'Response' object is not subscriptable if i do [0], but user returns the object I want but in an array
-    return user
+    return user["phone"]
 
 
 @app.route("/user", methods=["POST"])
