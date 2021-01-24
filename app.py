@@ -492,10 +492,10 @@ def check_alerts():
         for alert in searchAlerts:
             print(alert)
             # 'dict' object has no attribute 'user_id'
-            new_result = Result(added_car.json["id"], alert.user_id, alert.id)
+            new_result = Result(added_car.json["id"], alert["user_id"], alert["id"])
             add_result_from_diff_route(new_result)
 
-            user = get_user_by_id(alert.user_id)
+            user = get_user_by_id(alert["user_id"])
             # TODO This is where we call the twilio stuff using user.phone
 
     # return jsonify(searchAlerts)
