@@ -573,10 +573,10 @@ def add_result():
 
 
 def add_result_from_diff_route(result):
-    db.session.add(new_result)
+    db.session.add(result)
     db.session.commit()
 
-    return alert_schema.jsonify(new_result)
+    return alert_schema.jsonify(result)
 
 
 
