@@ -259,7 +259,7 @@ def get_user_by_id(id):
     """
     Gets all users that match the given id
     """
-    all_users = User.query.filter(User.id == id).all()
+    all_users = User.query.filter(User.id == id).first()
     userResult = users_schema.dump(all_users)
 
     return jsonify(userResult)
@@ -497,8 +497,8 @@ def check_alerts():
             # TODO This is where we call the twilio stuff using user.phone
 
     # return jsonify(searchAlerts)
-    # 'Response' object is not subscriptable
-    return user[0]
+    # 'Response' object is not subscriptable if i do [0], but user returns the object I want but in an array
+    return user
 
 
 @app.route("/user", methods=["POST"])
