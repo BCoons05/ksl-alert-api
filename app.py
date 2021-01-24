@@ -485,22 +485,20 @@ def check_alerts():
 
     searchAlerts = alerts_schema.dump(search_alerts)
 
-    return len(searchAlerts)
+    if(len(searchAlerts) > 0):
+        new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
+        added_car = add_car_from_search_route(new_car).json()[0]
 
-    # if(searchAlerts.json()[0][0]):
-    #     new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
-    #     added_car = add_car_from_search_route(new_car).json()[0][0]
+        for alert in searchAlerts:
+            new_result = Result(added_car.id, alert.user_id, alert.alert_id)
+            add_result_from_diff_route(new_result)
 
-    #     for alert in searchAlerts:
-    #         new_result = Result(added_car.id, alert.user_id, alert.alert_id)
-    #         add_result_from_diff_route(new_result)
+            user = get_user_by_id(alert.user_id).json()[0]
+            # TODO This is where we call the twilio stuff using user.phone
+            print('Deal found. Texting {user.phone}')
 
-    #         user = get_user_by_id(alert.user_id).json()[0][0]
-    #         # TODO This is where we call the twilio stuff using user.phone
-    #         print('Deal found. Texting {user.phone}')
-
-    # # return jsonify(searchAlerts)
-    # return 'Deal found. Texting {user.phone}'
+    # return jsonify(searchAlerts)
+    return 'Deal found. Texting {user.phone}'
 
 
 @app.route("/user", methods=["POST"])
