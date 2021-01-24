@@ -490,7 +490,8 @@ def check_alerts():
         added_car = add_car_from_search_route(new_car)
 
         for alert in searchAlerts:
-            new_result = Result(added_car.id, alert.user_id, alert.alert_id)
+            # 'Response' object has no attribute 'id'
+            new_result = Result(added_car[0].id, alert.user_id, alert.alert_id)
             add_result_from_diff_route(new_result)
 
             user = get_user_by_id(alert.user_id)
