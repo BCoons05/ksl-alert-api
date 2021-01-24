@@ -489,17 +489,19 @@ def check_alerts():
         new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
         added_car = add_car_from_search_route(new_car)
 
-        for alert in searchAlerts:
-            # 'Response' object has no attribute 'id'
-            new_result = Result(added_car[0].id, alert.user_id, alert.alert_id)
-            add_result_from_diff_route(new_result)
+        return added_car
 
-            user = get_user_by_id(alert.user_id)
-            # TODO This is where we call the twilio stuff using user.phone
-            print('Deal found. Texting {user.phone}')
+    #     for alert in searchAlerts:
+    #         # 'Response' object has no attribute 'id'
+    #         new_result = Result(added_car[0].id, alert.user_id, alert.alert_id)
+    #         add_result_from_diff_route(new_result)
 
-    # return jsonify(searchAlerts)
-    return 'Deal found. Texting {user.phone}'
+    #         user = get_user_by_id(alert.user_id)
+    #         # TODO This is where we call the twilio stuff using user.phone
+    #         print('Deal found. Texting {user.phone}')
+
+    # # return jsonify(searchAlerts)
+    # return 'Deal found. Texting {user.phone}'
 
 
 @app.route("/user", methods=["POST"])
