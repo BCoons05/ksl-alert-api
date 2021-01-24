@@ -497,7 +497,7 @@ def check_alerts():
             # TODO This is where we call the twilio stuff using user.phone
 
     # return jsonify(searchAlerts)
-    return user.json["phone"]
+    return user[0].json["phone"]
 
 
 @app.route("/user", methods=["POST"])
