@@ -498,7 +498,7 @@ def check_alerts():
 
     # return jsonify(searchAlerts)
     # 'Response' object is not subscriptable
-    return user
+    return user[0]
 
 
 @app.route("/user", methods=["POST"])
