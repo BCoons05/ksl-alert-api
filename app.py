@@ -260,9 +260,9 @@ def get_user_by_id(id):
     Gets all users that match the given id
     """
     all_users = User.query.filter(User.id == id).first()
-    userResult = users_schema.dump(all_users)
+    userResult = users_schema.jsonify(all_users)
 
-    return jsonify(userResult)
+    return userResult
 
 
 @app.route("/alerts", methods=["GET"])
