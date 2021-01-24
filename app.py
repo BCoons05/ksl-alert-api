@@ -497,7 +497,8 @@ def check_alerts():
             # TODO This is where we call the twilio stuff using user.phone
 
     # return jsonify(searchAlerts)
-    return user[0].json["phone"]
+    # 'Response' object is not subscriptable
+    return user
 
 
 @app.route("/user", methods=["POST"])
