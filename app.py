@@ -485,7 +485,7 @@ def check_alerts():
 
     searchAlerts = jsonify(alerts_schema.dump(search_alerts))
 
-    return searchAlerts.json()[0]
+    return searchAlerts
 
     # if(searchAlerts.json()[0][0]):
     #     new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
