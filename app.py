@@ -485,7 +485,7 @@ def check_alerts():
 
     searchAlerts = jsonify(alerts_schema.dump(search_alerts))
 
-    if(len(searchAlerts.json()) > 0):
+    if(searchAlerts.json()[0]):
         new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
         added_car = add_car_from_search_route(new_car).json()[0]
 
