@@ -442,8 +442,8 @@ def get_average_price(*this_car):
 
     average_price = db.session.query(func.avg(Car.price).label('average'))\
         .filter(
-        Car.make.lower() == make.lower(),\
-        Car.model.lower() == model.lower(),\
+        str(Car.make).lower() == make.lower(),\
+        str(Car.model).lower() == model.lower(),\
         year_min <= Car.year,\
         year_max >= Car.year,\
         miles_min <= Car.miles,\
