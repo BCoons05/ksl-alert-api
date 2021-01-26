@@ -398,17 +398,49 @@ def search_cars():
     return jsonify(searchCars)
 
 
-# TODO Make this a POST? Also need to incorporate trim, drive, transmission, etc
-@app.route("/cars/price/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
-def get_average_price(make, model, year_min, year_max):
+
+@app.route("/cars/price", methods=["POST"])
+def get_average_price(*this_car):
     """
     Get average price for given make, model, and year range
     """
+    default = 'any'
+    make = request.json["make"] or this_car[0].make
+    model = request.json["model"] or this_car[0].model
+    year_min = request.json["year_min"] or request.json["year"] or this_car[0].year
+    year_max = request.json["year_max"] or request.json["year"] or this_car[0].year
+    miles_min = request.json["miles_min"] or 1
+    miles_max = request.json["miles_max"] or 999999
+    price_min = request.json["price_min"] or 1
+    price_max = request.json["price_max"] or 9999999
+    trim = request.json["trim"] or this_car[0].trim or default
+    liters = request.json["liters"] or this_car[0].liters or default
+    cylinders = request.json["cylinders"] or this_car[0].cylinders or 0
+    drive = request.json["drive"] or this_car[0].drive or default
+    doors = request.json["doors"] or this_car[0].doors or 0
+    fuel = request.json["fuel"] or this_car[0].fuel or default
+    title = request.json["title"] or this_car[0].title or default
+    seller = request.json["seller"] or this_car[0].seller or default
+
     average_price = db.session.query(func.avg(Car.price).label('average'))\
-        .filter(Car.make.like(make),\
-        Car.model.like(model),\
-        Car.year >= year_min,\
-        Car.year <= year_max).all()
+        .filter(
+        Car.make.lower() == make.lower(),\
+        Car.model.lower() == model.lower(),\
+        year_min <= Car.year,\
+        year_max >= Car.year,\
+        miles_min <= Car.miles,\
+        miles_max >= Car.miles,\
+        price_min <= Car.price,\
+        price_max >= Car.price,\
+        or_(Car.trim == trim, trim == default),\
+        or_(Car.liters == liters, liters == default),\
+        or_(cylinders == 0, cylinders == Car.cylinders),\
+        or_(drive == default, drive == Car.drive),\
+        or_(doors == 0, doors == Car.doors),\
+        or_(fuel == default, fuel == Car.fuel),\
+        or_(title == default, title == Car.title),\
+        or_(seller == default, seller == Car.seller)
+        ).all()
     
     if average_price[0][0]:
         return jsonify({
@@ -418,18 +450,49 @@ def get_average_price(make, model, year_min, year_max):
         return "not enough data"
 
 
-# TODO make this a post? Also need to incorporate trim, drive, transmission, etc
-@app.route("/cars/miles/<make>-<model>-<int:year_min>-<int:year_max>", methods=["GET"])
-def get_average_miles(make, model, year_min, year_max):
+
+@app.route("/cars/miles", methods=["POST"])
+def get_average_miles():
     """
     Get average miles for given make, model, and year range
     """
+    default = 'any'
+    make = request.json["make"]
+    model = request.json["model"]
+    year_min = request.json["year_min"] or request.json["year"]
+    year_max = request.json["year_max"] or request.json["year"]
+    miles_min = request.json["miles_min"] or 1
+    miles_max = request.json["miles_max"] or 999999
+    price_min = request.json["price_min"] or 1
+    price_max = request.json["price_max"] or 9999999
+    trim = request.json["trim"] or default
+    liters = request.json["liters"] or default
+    cylinders = request.json["cylinders"] or 0
+    drive = request.json["drive"] or default
+    doors = request.json["doors"] or 0
+    fuel = request.json["fuel"] or default
+    title = request.json["title"] or default
+    seller = request.json["seller"] or default
+
     average_miles = db.session.query(func.avg(Car.miles).label('average'))\
         .filter(
-        Car.make.like(make),\
-        Car.model.like(model),\
-        Car.year >= year_min,\
-        Car.year <= year_max).all()
+        Car.make.lower() == make.lower(),\
+        Car.model.lower() == model.lower(),\
+        year_min <= Car.year,\
+        year_max >= Car.year,\
+        miles_min <= Car.miles,\
+        miles_max >= Car.miles,\
+        price_min <= Car.price,\
+        price_max >= Car.price,\
+        or_(Car.trim == trim, trim == default),\
+        or_(Car.liters == liters, liters == default),\
+        or_(cylinders == 0, cylinders == Car.cylinders),\
+        or_(drive == default, drive == Car.drive),\
+        or_(doors == 0, doors == Car.doors),\
+        or_(fuel == default, fuel == Car.fuel),\
+        or_(title == default, title == Car.title),\
+        or_(seller == default, seller == Car.seller)
+        ).all()
 
     if average_miles[0][0]:
         return jsonify({
@@ -439,12 +502,14 @@ def get_average_miles(make, model, year_min, year_max):
         return "not enough data"
 
 
+
+# The route that makes everything work. 
 @app.route("/alert/search", methods=["POST"])
 def check_alerts():
     """
-    POST Search Alerts
-    When we scrape KSL, before we post a result, we will check for a matching alert here. 
-    If there is a match then create a result and send a message
+    Takes a car, checks for an alert that the car fits with, 
+    then if an alert is found, the car is posted, a result is created
+    and the text is sent.
     """
     default = 'any'
     year = request.json["year"]
@@ -489,16 +554,17 @@ def check_alerts():
         new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
         added_car = add_car_from_search_route(new_car)
 
+        print(get_average_price(new_car))
+
         for alert in searchAlerts:
             new_result = Result(added_car.json["id"], alert["user_id"], alert["id"])
             add_result_from_diff_route(new_result)
 
             user = get_user_by_id(alert["user_id"])
-            # TODO This is where we call the twilio stuff using user.phone
+            phone_number = user.json["phone"]
+            # TODO This is where we call the twilio stuff using phone_number
 
-    # return jsonify(searchAlerts)
-    # 'Response' object is not subscriptable if i do [0], but user returns the object I want but in an array
-    return user.json["phone"]
+    return phone_number
 
 
 @app.route("/user", methods=["POST"])
