@@ -407,7 +407,7 @@ def get_average_price(*this_car):
     default = 'any'
     make = request.json["make"] or this_car[0].make
     model = request.json["model"] or this_car[0].model
-    year_min = request.json["year_min"] or request.json["year"] or this_car[0].year
+    year_min = (request.json["year_min"] or this_car[0].year) or request.json["year"]
     year_max = request.json["year_max"] or request.json["year"] or this_car[0].year
     miles_min = request.json["miles_min"] or 1
     miles_max = request.json["miles_max"] or 999999
