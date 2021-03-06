@@ -57,7 +57,6 @@ class User(db.Model):
         self.created_on = datetime.datetime.now().strftime("%c")
 
 
-# TODO add title to Car
 class Car(db.Model):
     """
     Class for a car
@@ -358,20 +357,61 @@ def search_cars():
     default = 'any'
     make = request.json["make"]
     model = request.json["model"]
-    year_min = request.json["year_min"] or request.json["year"]
-    year_max = request.json["year_max"] or request.json["year"]
-    miles_min = request.json["miles_min"] or 1
-    miles_max = request.json["miles_max"] or 999999
-    price_min = request.json["price_min"] or 1
-    price_max = request.json["price_max"] or 9999999
-    trim = request.json["trim"] or default
-    liters = request.json["liters"] or default
-    cylinders = request.json["cylinders"] or 0
-    drive = request.json["drive"] or default
-    doors = request.json["doors"] or 0
-    fuel = request.json["fuel"] or default
-    title = request.json["title"] or default
-    seller = request.json["seller"] or default
+    miles_min = 1
+    miles_max = 999999
+    price_min = 1
+    price_max = 9999999
+    trim = default
+    liters = default
+    cylinders = 0
+    drive = default
+    doors = 0
+    fuel = default
+    title = default
+    seller = default
+
+    if(request.json["year_min"] and request.json["year_max"]):
+        year_min = request.json["year_min"]
+        year_max = request.json["year_max"]
+    else:
+        year_min = request.json["year"]
+        year_max = request.json["year"]
+     
+    if(request.json["miles_min"]):
+        miles_min = request.json["miles_min"]
+        
+    if(request.json["miles_max"]):
+        miles_max = request.json["miles_max"]
+
+    if(request.json["price_min"]):
+        price_min = request.json["price_min"]
+
+    if(request.json["price_max"]):
+        price_max = request.json["price_max"]
+
+    if(request.json["trim"]):
+        trim = request.json["trim"]
+
+    if(request.json["liters"]):
+        liters = request.json["liters"]
+
+    if(request.json["cylinders"]):
+        cylinders = request.json["cylinders"]
+
+    if(request.json["drive"]):
+        drive = request.json["drive"]
+
+    if(request.json["doors"]):
+        doors = request.json["doors"]
+
+    if(request.json["fuel"]):
+        fuel = request.json["fuel"]
+
+    if(request.json["title"]):
+        title = request.json["title"]
+    
+    if(request.json["seller"]):
+        seller = request.json["seller"]
 
     search_cars = db.session.query(Car)\
         .filter(
@@ -400,45 +440,66 @@ def search_cars():
 
 
 @app.route("/cars/price", methods=["POST"])
-def get_average_price(*this_car):
+def get_average_price(this_car):
     """
     Get average price for given make, model, and year range
     """
     default = 'any'
-    if(this_car[0]):
-        make = this_car[0].make
-        model = this_car[0].model
-        year_min = this_car[0].year
-        year_max = this_car[0].year
-        miles_min = 1
-        miles_max = 999999
-        price_min = 1
-        price_max = 9999999
-        trim = this_car[0].trim or default
-        liters = this_car[0].liters or default
-        cylinders = this_car[0].cylinders or 0
-        drive = this_car[0].drive or default
-        doors = this_car[0].doors or 0
-        fuel = this_car[0].fuel or default
-        title = this_car[0].title or default
-        seller = this_car[0].seller or default
+    miles_min = 1
+    miles_max = 999999
+    price_min = 1
+    price_max = 9999999
+    trim = default
+    liters = default
+    cylinders = 0
+    drive = default
+    doors = 0
+    fuel = default
+    title = default
+    seller = default
+
+    if(this_car):
+        make = this_car.make
+        model = this_car.model
+        if(this_car.year):
+            year_min = this_car.year
+            year_max = this_car.year
+        if(this_car.trim):
+            trim = this_car.trim
+        if(this_car.liters):
+            liters = this_car.liters
+        if(this_car.cylinders):
+            cylinders = this_car.cylinders
+        if(this_car.drive):
+            drive = this_car.drive
+        if(this_car.doors):
+            doors = this_car.doors
+        if(this_car.fuel):
+            fuel = this_car.fuel
+        if(this_car.title):
+            title = this_car.title
+        if(this_car.seller):
+            seller = this_car.seller
     else:
         make = request.json["make"]
         model = request.json["model"]
-        year_min = request.json["year_min"] or request.json["year"]
-        year_max = request.json["year_max"] or this_car[0].year
-        miles_min = request.json["miles_min"] or 1
-        miles_max = request.json["miles_max"] or 999999
-        price_min = request.json["price_min"] or 1
-        price_max = request.json["price_max"] or 9999999
-        trim = request.json["trim"] or default
-        liters = request.json["liters"] or default
-        cylinders = request.json["cylinders"] or 0
-        drive = request.json["drive"] or default
-        doors = request.json["doors"] or 0
-        fuel = request.json["fuel"] or default
-        title = request.json["title"] or default
-        seller = request.json["seller"] or default
+        if(request.json["year_min"]):
+            year_min = request.json["year_min"]
+        elif(request.json["year"]):
+            year_min = request.json["year"]
+        year_max = request.json["year_max"]
+        miles_min = request.json["miles_min"]
+        miles_max = request.json["miles_max"]
+        price_min = request.json["price_min"]
+        price_max = request.json["price_max"]
+        trim = request.json["trim"]
+        liters = request.json["liters"]
+        cylinders = request.json["cylinders"]
+        drive = request.json["drive"]
+        doors = request.json["doors"]
+        fuel = request.json["fuel"]
+        title = request.json["title"]
+        seller = request.json["seller"]
 
     average_price = db.session.query(func.avg(Car.price).label('average'))\
         .filter(
@@ -477,20 +538,61 @@ def get_average_miles():
     default = 'any'
     make = request.json["make"]
     model = request.json["model"]
-    year_min = request.json["year_min"] or request.json["year"]
-    year_max = request.json["year_max"] or request.json["year"]
-    miles_min = request.json["miles_min"] or 1
-    miles_max = request.json["miles_max"] or 999999
-    price_min = request.json["price_min"] or 1
-    price_max = request.json["price_max"] or 9999999
-    trim = request.json["trim"] or default
-    liters = request.json["liters"] or default
-    cylinders = request.json["cylinders"] or 0
-    drive = request.json["drive"] or default
-    doors = request.json["doors"] or 0
-    fuel = request.json["fuel"] or default
-    title = request.json["title"] or default
-    seller = request.json["seller"] or default
+    miles_min = 1
+    miles_max = 999999
+    price_min = 1
+    price_max = 9999999
+    trim = default
+    liters = default
+    cylinders = 0
+    drive = default
+    doors = 0
+    fuel = default
+    title = default
+    seller = default
+
+    if(request.json["year_min"] and request.json["year_max"]):
+        year_min = request.json["year_min"]
+        year_max = request.json["year_max"]
+    else:
+        year_min = request.json["year"]
+        year_max = request.json["year"]
+     
+    if(request.json["miles_min"]):
+        miles_min = request.json["miles_min"]
+        
+    if(request.json["miles_max"]):
+        miles_max = request.json["miles_max"]
+
+    if(request.json["price_min"]):
+        price_min = request.json["price_min"]
+
+    if(request.json["price_max"]):
+        price_max = request.json["price_max"]
+
+    if(request.json["trim"]):
+        trim = request.json["trim"]
+
+    if(request.json["liters"]):
+        liters = request.json["liters"]
+
+    if(request.json["cylinders"]):
+        cylinders = request.json["cylinders"]
+
+    if(request.json["drive"]):
+        drive = request.json["drive"]
+
+    if(request.json["doors"]):
+        doors = request.json["doors"]
+
+    if(request.json["fuel"]):
+        fuel = request.json["fuel"]
+
+    if(request.json["title"]):
+        title = request.json["title"]
+    
+    if(request.json["seller"]):
+        seller = request.json["seller"]
 
     average_miles = db.session.query(func.avg(Car.miles).label('average'))\
         .filter(
@@ -571,8 +673,6 @@ def check_alerts():
     if(len(searchAlerts) > 0):
         new_car = Car(year, make, model, trim, miles, price, link, vin, liters, cylinders, drive, doors, fuel, title, seller)
         added_car = add_car_from_search_route(new_car)
-
-        print(get_average_price(new_car))
 
         for alert in searchAlerts:
             new_result = Result(added_car.json["id"], alert["user_id"], alert["id"])
